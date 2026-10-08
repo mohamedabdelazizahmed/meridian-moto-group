@@ -1,0 +1,97 @@
+// Meridian Moto Group - Entity Relationship Diagram (DBML)
+// Fictional company created for recruitment assessment purposes only.
+
+Table users {
+  id bigint [pk, increment]
+  name varchar
+  email varchar [unique]
+  email_verified_at timestamp [null]
+  password varchar
+  remember_token varchar [null]
+  created_at timestamp [null]
+  updated_at timestamp [null]
+}
+
+Table brands {
+  id bigint [pk, increment]
+  name varchar
+  slug varchar [unique]
+  segment varchar
+  tagline varchar [null]
+  description text [null]
+  accent_color varchar(7)
+  logo_path varchar [null]
+  hero_image_path varchar [null]
+  is_active boolean [default: true]
+  created_at timestamp [null]
+  updated_at timestamp [null]
+}
+
+Table brand_user {
+  brand_id bigint
+  user_id bigint
+}
+
+Table motorcycles {
+  id bigint [pk, increment]
+  brand_id bigint
+  name varchar
+  slug varchar [unique]
+  price_from decimal(10,2)
+  engine_cc smallint
+  power_hp smallint
+  image_path varchar [null]
+  summary text [null]
+  is_featured boolean [default: false]
+  is_published boolean [default: false]
+  created_at timestamp [null]
+  updated_at timestamp [null]
+}
+
+Table promotions {
+  id bigint [pk, increment]
+  brand_id bigint
+  title varchar
+  description text [null]
+  image_path varchar [null]
+  starts_at date
+  ends_at date
+  is_published boolean [default: false]
+  created_by bigint [null]
+  created_at timestamp [null]
+  updated_at timestamp [null]
+}
+
+Table locations {
+  id bigint [pk, increment]
+  name varchar
+  type varchar
+  city varchar
+  address varchar
+  phone varchar [null]
+  latitude decimal(10,7)
+  longitude decimal(10,7)
+  created_at timestamp [null]
+  updated_at timestamp [null]
+}
+
+Table test_ride_requests {
+  id bigint [pk, increment]
+  motorcycle_id bigint [null]
+  name varchar
+  phone varchar
+  email varchar
+  preferred_date date
+  created_at timestamp [null]
+}
+
+Note "Spatie Permission Tables" {
+  note: 'roles, permissions, model_has_roles, model_has_permissions, role_has_permissions tables manage administrative roles (admin, data_entry).'
+}
+
+Ref: brand_user.brand_id > brands.id [delete: cascade]
+Ref: brand_user.user_id > users.id [delete: cascade]
+Ref: motorcycles.brand_id > brands.id [delete: cascade]
+Ref: promotions.brand_id > brands.id [delete: cascade]
+Ref: promotions.created_by > users.id [delete: set null]
+Ref: test_ride_requests.motorcycle_id > motorcycles.id [delete: set null]
