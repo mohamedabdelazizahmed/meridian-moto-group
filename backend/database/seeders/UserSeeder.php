@@ -1,13 +1,16 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Database\Seeders;
 
+use App\Enums\RoleName;
 use App\Models\Brand;
 use App\Models\User;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
 
-class UserSeeder extends Seeder
+final class UserSeeder extends Seeder
 {
     public function run(): void
     {
@@ -21,7 +24,7 @@ class UserSeeder extends Seeder
                 'email_verified_at' => now(),
             ]
         );
-        $admin->syncRoles(['admin']);
+        $admin->syncRoles([RoleName::Admin->value]);
 
         $apex = Brand::where('slug', 'apex')->first();
         $nomad = Brand::where('slug', 'nomad')->first();
@@ -35,7 +38,7 @@ class UserSeeder extends Seeder
                 'email_verified_at' => now(),
             ]
         );
-        $entryOne->syncRoles(['data_entry']);
+        $entryOne->syncRoles([RoleName::DataEntry->value]);
         if ($apex && $nomad) {
             $entryOne->brands()->sync([$apex->id, $nomad->id]);
         }
@@ -48,7 +51,7 @@ class UserSeeder extends Seeder
                 'email_verified_at' => now(),
             ]
         );
-        $entryTwo->syncRoles(['data_entry']);
+        $entryTwo->syncRoles([RoleName::DataEntry->value]);
         if ($volt) {
             $entryTwo->brands()->sync([$volt->id]);
         }

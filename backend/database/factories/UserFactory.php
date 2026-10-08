@@ -1,7 +1,10 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Database\Factories;
 
+use App\Enums\RoleName;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Collection;
@@ -33,10 +36,12 @@ class UserFactory extends Factory
         ]);
     }
 
-    public function withRole(string $role): static
+    public function withRole(RoleName|string $role): static
     {
-        return $this->afterCreating(function (User $user) use ($role) {
-            $user->assignRole($role);
+        $roleValue = $role instanceof RoleName ? $role->value : $role;
+
+        return $this->afterCreating(function (User $user) use ($roleValue) {
+            $user->assignRole($roleValue);
         });
     }
 
