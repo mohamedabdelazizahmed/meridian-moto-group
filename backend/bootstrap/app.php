@@ -3,12 +3,14 @@
 declare(strict_types=1);
 
 use Illuminate\Auth\Access\AuthorizationException;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -30,6 +32,14 @@ return Application::configure(basePath: dirname(__DIR__))
                 return response()->json([
                     'message' => 'This action is unauthorized.',
                 ], Response::HTTP_FORBIDDEN);
+            }
+        });
+
+        $exceptions->render(function (ModelNotFoundException|NotFoundHttpException $e, Request $request) {
+            if ($request->is('api/*') || $request->expectsJson()) {
+                return response()->json([
+                    'message' => 'Resource not found.',
+                ], Response::HTTP_NOT_FOUND);
             }
         });
     })->create();
