@@ -1,0 +1,989 @@
+{
+  "info": {
+    "name": "Meridian Moto Group API",
+    "description": "Postman collection for Meridian Moto Group API, generated from OpenAPI specification.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{token}}",
+        "type": "string"
+      }
+    ]
+  },
+  "item": [
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Login (Admin)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var jsonData = pm.response.json();",
+                  "if (jsonData.token) {",
+                  "    pm.environment.set(\"token\", jsonData.token);",
+                  "}",
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"admin@meridian.test\",\n  \"password\": \"Meridian @2026\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/login",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "login"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Login (Data Entry 1 - Apex & Nomad)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var jsonData = pm.response.json();",
+                  "if (jsonData.token) {",
+                  "    pm.environment.set(\"token\", jsonData.token);",
+                  "}",
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"entry1@meridian.test\",\n  \"password\": \"Meridian @2026\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/login",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "login"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Login (Data Entry 2 - Volt)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var jsonData = pm.response.json();",
+                  "if (jsonData.token) {",
+                  "    pm.environment.set(\"token\", jsonData.token);",
+                  "}",
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"entry2@meridian.test\",\n  \"password\": \"Meridian @2026\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/login",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "login"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Logout",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/auth/logout",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "logout"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Current User (Me)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/auth/me",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "me"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Catalog (public)",
+      "item": [
+        {
+          "name": "Ping Health Check",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/ping",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "ping"
+              ]
+            }
+          }
+        },
+        {
+          "name": "List Active Brands",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/brands",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "brands"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Brand Detail",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/brands/apex",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "brands",
+                "apex"
+              ]
+            }
+          }
+        },
+        {
+          "name": "List Published Motorcycles",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/motorcycles?page=1&per_page=15",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "motorcycles"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "per_page",
+                  "value": "15"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Motorcycle Detail",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/motorcycles/apex-rs-900",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "motorcycles",
+                "apex-rs-900"
+              ]
+            }
+          }
+        },
+        {
+          "name": "List Active Promotions",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/promotions",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "promotions"
+              ]
+            }
+          }
+        },
+        {
+          "name": "List Locations",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/locations",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "locations"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Test Rides",
+      "item": [
+        {
+          "name": "Submit Test Ride Request",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Layla Hassan\",\n  \"email\": \"layla.hassan@example.com\",\n  \"phone\": \"+971501234567\",\n  \"preferred_date\": \"2026-11-15\",\n  \"motorcycle_slug\": \"apex-rs-900\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/test-ride-requests",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "test-ride-requests"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Admin Brands",
+      "item": [
+        {
+          "name": "List Brands (Admin)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/admin/brands",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "admin",
+                "brands"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Create Brand (Admin)",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "name",
+                  "value": "Apex",
+                  "type": "text"
+                },
+                {
+                  "key": "slug",
+                  "value": "apex",
+                  "type": "text"
+                },
+                {
+                  "key": "segment",
+                  "value": "Performance",
+                  "type": "text"
+                },
+                {
+                  "key": "tagline",
+                  "value": "Pure track-bred adrenaline.",
+                  "type": "text"
+                },
+                {
+                  "key": "description",
+                  "value": "Apex description.",
+                  "type": "text"
+                },
+                {
+                  "key": "accent_color",
+                  "value": "#E5322D",
+                  "type": "text"
+                },
+                {
+                  "key": "is_active",
+                  "value": "1",
+                  "type": "text"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/admin/brands",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "admin",
+                "brands"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Brand by ID (Admin)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/admin/brands/1",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "admin",
+                "brands",
+                "1"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Update Brand (Admin - via POST multipart)",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "_method",
+                  "value": "PUT",
+                  "type": "text"
+                },
+                {
+                  "key": "name",
+                  "value": "Apex Updated",
+                  "type": "text"
+                },
+                {
+                  "key": "segment",
+                  "value": "Performance",
+                  "type": "text"
+                },
+                {
+                  "key": "accent_color",
+                  "value": "#E5322D",
+                  "type": "text"
+                },
+                {
+                  "key": "is_active",
+                  "value": "1",
+                  "type": "text"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/admin/brands/1",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "admin",
+                "brands",
+                "1"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Delete Brand (Admin)",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/admin/brands/1",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "admin",
+                "brands",
+                "1"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Admin Motorcycles",
+      "item": [
+        {
+          "name": "List Motorcycles (Admin)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/admin/motorcycles",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "admin",
+                "motorcycles"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Create Motorcycle (Admin)",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "brand_id",
+                  "value": "3",
+                  "type": "text"
+                },
+                {
+                  "key": "name",
+                  "value": "Apex Sprint 750",
+                  "type": "text"
+                },
+                {
+                  "key": "price_from",
+                  "value": "79000",
+                  "type": "text"
+                },
+                {
+                  "key": "engine_cc",
+                  "value": "749",
+                  "type": "text"
+                },
+                {
+                  "key": "power_hp",
+                  "value": "120",
+                  "type": "text"
+                },
+                {
+                  "key": "summary",
+                  "value": "Agile middleweight track performer.",
+                  "type": "text"
+                },
+                {
+                  "key": "is_published",
+                  "value": "1",
+                  "type": "text"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/admin/motorcycles",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "admin",
+                "motorcycles"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Motorcycle by ID (Admin)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/admin/motorcycles/1",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "admin",
+                "motorcycles",
+                "1"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Update Motorcycle (Admin - via POST multipart)",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "_method",
+                  "value": "PUT",
+                  "type": "text"
+                },
+                {
+                  "key": "brand_id",
+                  "value": "3",
+                  "type": "text"
+                },
+                {
+                  "key": "name",
+                  "value": "Apex Sprint 750 Updated",
+                  "type": "text"
+                },
+                {
+                  "key": "price_from",
+                  "value": "81000",
+                  "type": "text"
+                },
+                {
+                  "key": "engine_cc",
+                  "value": "749",
+                  "type": "text"
+                },
+                {
+                  "key": "power_hp",
+                  "value": "125",
+                  "type": "text"
+                },
+                {
+                  "key": "is_published",
+                  "value": "1",
+                  "type": "text"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/admin/motorcycles/1",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "admin",
+                "motorcycles",
+                "1"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Delete Motorcycle (Admin)",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/admin/motorcycles/1",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "admin",
+                "motorcycles",
+                "1"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Admin Promotions",
+      "item": [
+        {
+          "name": "List Promotions (Admin)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/admin/promotions",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "admin",
+                "promotions"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Create Promotion (Admin)",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "brand_id",
+                  "value": "3",
+                  "type": "text"
+                },
+                {
+                  "key": "title",
+                  "value": "Spring Track Special",
+                  "type": "text"
+                },
+                {
+                  "key": "description",
+                  "value": "Track tuning package.",
+                  "type": "text"
+                },
+                {
+                  "key": "starts_at",
+                  "value": "2026-10-01",
+                  "type": "text"
+                },
+                {
+                  "key": "ends_at",
+                  "value": "2026-12-31",
+                  "type": "text"
+                },
+                {
+                  "key": "is_published",
+                  "value": "1",
+                  "type": "text"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/admin/promotions",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "admin",
+                "promotions"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Promotion by ID (Admin)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/admin/promotions/1",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "admin",
+                "promotions",
+                "1"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Update Promotion (Admin - via POST multipart)",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "_method",
+                  "value": "PUT",
+                  "type": "text"
+                },
+                {
+                  "key": "brand_id",
+                  "value": "3",
+                  "type": "text"
+                },
+                {
+                  "key": "title",
+                  "value": "Spring Track Special Updated",
+                  "type": "text"
+                },
+                {
+                  "key": "starts_at",
+                  "value": "2026-10-01",
+                  "type": "text"
+                },
+                {
+                  "key": "ends_at",
+                  "value": "2026-12-31",
+                  "type": "text"
+                },
+                {
+                  "key": "is_published",
+                  "value": "1",
+                  "type": "text"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/admin/promotions/1",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "admin",
+                "promotions",
+                "1"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Delete Promotion (Admin)",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/admin/promotions/1",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "admin",
+                "promotions",
+                "1"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Admin Users",
+      "item": [
+        {
+          "name": "List Users (Admin)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/admin/users",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "admin",
+                "users"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Create User (Admin)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Sam Entry\",\n  \"email\": \"sam.entry@meridian.test\",\n  \"password\": \"SecurePass123\",\n  \"role\": \"data_entry\",\n  \"brand_ids\": [2]\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/admin/users",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "admin",
+                "users"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get User by ID (Admin)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/admin/users/1",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "admin",
+                "users",
+                "1"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Update User (Admin)",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Sam Entry Updated\",\n  \"email\": \"sam.entry@meridian.test\",\n  \"role\": \"data_entry\",\n  \"brand_ids\": [1, 2]\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/admin/users/1",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "admin",
+                "users",
+                "1"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Delete User (Admin)",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/admin/users/1",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "admin",
+                "users",
+                "1"
+              ]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

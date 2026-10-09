@@ -80,6 +80,20 @@ test('docs endpoints return correct response and respect configuration', functio
     $this->get('/docs/openapi.yaml')->assertStatus(404);
 });
 
+test('docs view references only local swagger assets and assets exist', function () {
+    config(['api-docs.enabled' => true]);
+
+    $response = $this->get('/docs');
+    $response->assertStatus(200);
+    $content = $response->getContent();
+
+    expect($content)->not->toContain('https://cdn.jsdelivr.net');
+
+    expect(file_exists(public_path('vendor/swagger-ui/swagger-ui.css')))->toBeTrue();
+    expect(file_exists(public_path('vendor/swagger-ui/swagger-ui-bundle.js')))->toBeTrue();
+    expect(file_exists(public_path('vendor/swagger-ui/swagger-ui-standalone-preset.js')))->toBeTrue();
+});
+
 test('every operation declares security and lists at least one response', function () {
     $specPath = resource_path('openapi/openapi.yaml');
     $spec = Yaml::parseFile($specPath);

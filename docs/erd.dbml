@@ -25,11 +25,17 @@ Table brands {
   is_active boolean [default: true]
   created_at timestamp [null]
   updated_at timestamp [null]
+  Indexes {
+    is_active [name: "brands_is_active_index"]
+  }
 }
 
 Table brand_user {
   brand_id bigint
   user_id bigint
+  Indexes {
+    (brand_id, user_id) [pk]
+  }
 }
 
 Table motorcycles {
@@ -46,6 +52,9 @@ Table motorcycles {
   is_published boolean [default: false]
   created_at timestamp [null]
   updated_at timestamp [null]
+  Indexes {
+    (is_published, brand_id) [name: "motorcycles_is_published_brand_id_index"]
+  }
 }
 
 Table promotions {
@@ -85,8 +94,59 @@ Table test_ride_requests {
   created_at timestamp [null]
 }
 
-Note "Spatie Permission Tables" {
-  note: 'roles, permissions, model_has_roles, model_has_permissions, role_has_permissions tables manage administrative roles (admin, data_entry).'
+Table personal_access_tokens {
+  id bigint [pk, increment]
+  tokenable_type varchar
+  tokenable_id bigint
+  name varchar
+  token varchar [unique]
+  abilities text [null]
+  last_used_at timestamp [null]
+  expires_at timestamp [null]
+  created_at timestamp [null]
+  updated_at timestamp [null]
+}
+
+Table roles {
+  id bigint [pk, increment]
+  name varchar
+  guard_name varchar
+  created_at timestamp [null]
+  updated_at timestamp [null]
+}
+
+Table permissions {
+  id bigint [pk, increment]
+  name varchar
+  guard_name varchar
+  created_at timestamp [null]
+  updated_at timestamp [null]
+}
+
+Table model_has_roles {
+  role_id bigint
+  model_type varchar
+  model_id bigint
+  Indexes {
+    (role_id, model_id, model_type) [pk]
+  }
+}
+
+Table model_has_permissions {
+  permission_id bigint
+  model_type varchar
+  model_id bigint
+  Indexes {
+    (permission_id, model_id, model_type) [pk]
+  }
+}
+
+Table role_has_permissions {
+  permission_id bigint
+  role_id bigint
+  Indexes {
+    (permission_id, role_id) [pk]
+  }
 }
 
 Ref: brand_user.brand_id > brands.id [delete: cascade]
@@ -95,3 +155,7 @@ Ref: motorcycles.brand_id > brands.id [delete: cascade]
 Ref: promotions.brand_id > brands.id [delete: cascade]
 Ref: promotions.created_by > users.id [delete: set null]
 Ref: test_ride_requests.motorcycle_id > motorcycles.id [delete: set null]
+Ref: model_has_roles.role_id > roles.id [delete: cascade]
+Ref: model_has_permissions.permission_id > permissions.id [delete: cascade]
+Ref: role_has_permissions.permission_id > permissions.id [delete: cascade]
+Ref: role_has_permissions.role_id > roles.id [delete: cascade]

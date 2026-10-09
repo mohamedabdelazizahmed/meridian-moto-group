@@ -16,8 +16,6 @@ final class SwaggerUiController extends Controller
             abort(SymfonyResponse::HTTP_NOT_FOUND);
         }
 
-        return response()->view('docs.swagger', [
-            'uiVersion' => config('api-docs.ui_version', '5.11.0'),
-        ]);
+        return response()->view('docs.swagger');
     }
 }
