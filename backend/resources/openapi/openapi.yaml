@@ -1,0 +1,1778 @@
+openapi: 3.0.3
+info:
+  title: Meridian Moto Group API
+  version: 1.0.0
+  description: >
+    Fictional company API created for recruitment assessment purposes only.
+    
+    ### Authentication Flow
+    1. Authenticate via `POST /auth/login` using one of the seeded demo accounts (Admin or Data Entry).
+    2. Copy the returned `token` string from the response.
+    3. Click the **Authorize** button at the top right of Swagger UI (or configure Bearer auth in Postman).
+    4. Paste your token into the Bearer token field and click **Authorize**.
+    
+    ### Demo Accounts
+    - **Admin User**: `admin@meridian.test` / `Meridian @2026` (Full access to all brands, motorcycles, promotions, and users).
+    - **Data Entry One**: `entry1@meridian.test` / `Meridian @2026` (Scoped to brands: Apex, Nomad).
+    - **Data Entry Two**: `entry2@meridian.test` / `Meridian @2026` (Scoped to brand: Volt).
+servers:
+  - url: http://localhost:8000/api/v1
+    description: Local development server
+tags:
+  - name: Auth
+    description: Authentication and session management
+  - name: Catalog (public)
+    description: Publicly accessible catalog for brands, motorcycles, promotions, and locations
+  - name: Test Rides
+    description: Customer test ride bookings
+  - name: Admin Brands
+    description: Brand management (Admin and scoped Data Entry)
+  - name: Admin Motorcycles
+    description: Motorcycle management (Admin and scoped Data Entry)
+  - name: Admin Promotions
+    description: Promotion management (Admin and scoped Data Entry)
+  - name: Admin Users
+    description: User account management (Admin only)
+
+security:
+  - bearerAuth: []
+
+paths:
+  /ping:
+    get:
+      tags:
+        - Catalog (public)
+      summary: Ping API health check
+      description: Returns health status of the API service.
+      security: []
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: ok
+
+  /auth/login:
+    post:
+      tags:
+        - Auth
+      summary: Authenticate user and issue token
+      description: Validates credentials and returns an API Sanctum Bearer token along with user details and role scope.
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - email
+                - password
+              properties:
+                email:
+                  type: string
+                  format: email
+                  example: admin@meridian.test
+                password:
+                  type: string
+                  example: Meridian @2026
+      responses:
+        '200':
+          description: Authentication successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthResponse'
+        '401':
+          $ref: '#/components/responses/Unauthenticated'
+        '422':
+          $ref: '#/components/responses/ValidationFailed'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+
+  /auth/logout:
+    post:
+      tags:
+        - Auth
+      summary: Revoke current API token
+      description: Revokes the current authenticated Sanctum token.
+      responses:
+        '204':
+          description: Token revoked successfully (No Content)
+        '401':
+          $ref: '#/components/responses/Unauthenticated'
+
+  /auth/me:
+    get:
+      tags:
+        - Auth
+      summary: Get authenticated user profile
+      description: Returns the currently authenticated user profile with their role and assigned brands.
+      responses:
+        '200':
+          description: User profile retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/User'
+        '401':
+          $ref: '#/components/responses/Unauthenticated'
+
+  /brands:
+    get:
+      tags:
+        - Catalog (public)
+      summary: List active brands
+      description: Returns a list of active brands with public catalog details and caching headers.
+      security: []
+      responses:
+        '200':
+          description: List of active brands
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/SiteBrand'
+
+  /brands/{slug}:
+    get:
+      tags:
+        - Catalog (public)
+      summary: Get brand detail by slug
+      description: Returns detailed brand information including published motorcycles and active promotions.
+      security: []
+      parameters:
+        - $ref: '#/components/parameters/slug'
+      responses:
+        '200':
+          description: Brand detail retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/SiteBrandDetail'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /motorcycles:
+    get:
+      tags:
+        - Catalog (public)
+      summary: List published motorcycles
+      description: Returns a paginated list of published motorcycles with optional filtering by brand slug, search query, and featured status.
+      security: []
+      parameters:
+        - $ref: '#/components/parameters/page'
+        - $ref: '#/components/parameters/per_page'
+        - $ref: '#/components/parameters/search'
+        - $ref: '#/components/parameters/brand'
+        - $ref: '#/components/parameters/featured'
+      responses:
+        '200':
+          description: Paginated list of published motorcycles
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/SiteMotorcycle'
+                  links:
+                    $ref: '#/components/schemas/PaginationLinks'
+                  meta:
+                    $ref: '#/components/schemas/PaginationMeta'
+
+  /motorcycles/{slug}:
+    get:
+      tags:
+        - Catalog (public)
+      summary: Get motorcycle detail by slug
+      description: Returns detailed information for a published motorcycle by its slug.
+      security: []
+      parameters:
+        - $ref: '#/components/parameters/slug'
+      responses:
+        '200':
+          description: Motorcycle detail retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/SiteMotorcycle'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /promotions:
+    get:
+      tags:
+        - Catalog (public)
+      summary: List active promotions
+      description: Returns active promotions whose schedule covers today.
+      security: []
+      responses:
+        '200':
+          description: List of active promotions
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/SitePromotion'
+
+  /locations:
+    get:
+      tags:
+        - Catalog (public)
+      summary: List showroom locations
+      description: Returns dealership and service locations ordered by city and name.
+      security: []
+      responses:
+        '200':
+          description: List of locations
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Location'
+
+  /test-ride-requests:
+    post:
+      tags:
+        - Test Rides
+      summary: Submit a test ride request
+      description: Submits a customer test ride booking request for a published motorcycle. Rate limited to 5 requests per minute.
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - name
+                - email
+                - phone
+                - preferred_date
+                - motorcycle_slug
+              properties:
+                name:
+                  type: string
+                  example: Layla Hassan
+                email:
+                  type: string
+                  format: email
+                  example: layla.hassan@example.com
+                phone:
+                  type: string
+                  example: "+971501234567"
+                preferred_date:
+                  type: string
+                  format: date
+                  example: '2026-11-15'
+                motorcycle_slug:
+                  type: string
+                  example: apex-rs-900
+                hp_comment:
+                  type: string
+                  description: Honeypot field (must be empty)
+                  example: ''
+      responses:
+        '201':
+          description: Test ride request created successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/TestRideResource'
+        '422':
+          $ref: '#/components/responses/ValidationFailed'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+
+  /admin/brands:
+    get:
+      tags:
+        - Admin Brands
+      summary: List brands (Admin)
+      description: Returns a paginated list of brands filtered by actor scope and search query.
+      parameters:
+        - $ref: '#/components/parameters/page'
+        - $ref: '#/components/parameters/per_page'
+        - $ref: '#/components/parameters/search'
+        - $ref: '#/components/parameters/status'
+      responses:
+        '200':
+          description: Paginated list of brands
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Brand'
+                  links:
+                    $ref: '#/components/schemas/PaginationLinks'
+                  meta:
+                    $ref: '#/components/schemas/PaginationMeta'
+        '401':
+          $ref: '#/components/responses/Unauthenticated'
+    post:
+      tags:
+        - Admin Brands
+      summary: Create brand (Admin)
+      description: Creates a new brand. Supports optional logo and hero image uploads via multipart/form-data.
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required:
+                - name
+                - segment
+                - accent_color
+              properties:
+                name:
+                  type: string
+                  example: Apex
+                slug:
+                  type: string
+                  example: apex
+                segment:
+                  type: string
+                  example: Performance
+                tagline:
+                  type: string
+                  example: Pure track-bred adrenaline.
+                description:
+                  type: string
+                  example: Apex merges cutting-edge racing aerodynamics.
+                accent_color:
+                  type: string
+                  example: '#E5322D'
+                logo:
+                  type: string
+                  format: binary
+                hero_image:
+                  type: string
+                  format: binary
+                is_active:
+                  type: boolean
+                  example: true
+      responses:
+        '201':
+          description: Brand created successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/Brand'
+        '401':
+          $ref: '#/components/responses/Unauthenticated'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '422':
+          $ref: '#/components/responses/ValidationFailed'
+
+  /admin/brands/{id}:
+    get:
+      tags:
+        - Admin Brands
+      summary: Get brand by ID (Admin)
+      description: Returns brand detail by numeric ID.
+      parameters:
+        - $ref: '#/components/parameters/id'
+      responses:
+        '200':
+          description: Brand detail retrieved
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/BrandDetail'
+        '401':
+          $ref: '#/components/responses/Unauthenticated'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    put:
+      tags:
+        - Admin Brands
+      summary: Update brand (Admin)
+      description: >
+        Updates an existing brand by ID. 
+        
+        *Note on File Uploads:* Laravel does not natively parse `multipart/form-data` payloads on `PUT`/`PATCH` requests. Clients must submit a `POST` request with `_method: PUT` in the form-data body along with the binary files (`logo`, `hero_image`).
+      parameters:
+        - $ref: '#/components/parameters/id'
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                _method:
+                  type: string
+                  example: PUT
+                name:
+                  type: string
+                  example: Apex Updated
+                segment:
+                  type: string
+                  example: Performance
+                tagline:
+                  type: string
+                  example: Pure track-bred adrenaline.
+                description:
+                  type: string
+                  example: Updated description.
+                accent_color:
+                  type: string
+                  example: '#E5322D'
+                logo:
+                  type: string
+                  format: binary
+                hero_image:
+                  type: string
+                  format: binary
+                is_active:
+                  type: boolean
+                  example: true
+      responses:
+        '200':
+          description: Brand updated successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/Brand'
+        '401':
+          $ref: '#/components/responses/Unauthenticated'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '422':
+          $ref: '#/components/responses/ValidationFailed'
+    patch:
+      tags:
+        - Admin Brands
+      summary: Partially update brand (Admin)
+      description: Partially updates an existing brand by ID.
+      parameters:
+        - $ref: '#/components/parameters/id'
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                _method:
+                  type: string
+                  example: PATCH
+                name:
+                  type: string
+                  example: Apex Patched
+                accent_color:
+                  type: string
+                  example: '#E5322D'
+      responses:
+        '200':
+          description: Brand updated successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/Brand'
+        '401':
+          $ref: '#/components/responses/Unauthenticated'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '422':
+          $ref: '#/components/responses/ValidationFailed'
+    delete:
+      tags:
+        - Admin Brands
+      summary: Delete brand (Admin)
+      description: Deletes a brand if it has no associated motorcycles.
+      parameters:
+        - $ref: '#/components/parameters/id'
+      responses:
+        '204':
+          description: Brand deleted successfully (No Content)
+        '401':
+          $ref: '#/components/responses/Unauthenticated'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '422':
+          description: Brand in use exception (cannot delete brand with motorcycles)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /admin/motorcycles:
+    get:
+      tags:
+        - Admin Motorcycles
+      summary: List motorcycles (Admin)
+      description: Returns a paginated list of motorcycles filtered by actor scope, brand, status, and search query.
+      parameters:
+        - $ref: '#/components/parameters/page'
+        - $ref: '#/components/parameters/per_page'
+        - $ref: '#/components/parameters/search'
+        - $ref: '#/components/parameters/brand_id'
+        - $ref: '#/components/parameters/status'
+      responses:
+        '200':
+          description: Paginated list of motorcycles
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Motorcycle'
+                  links:
+                    $ref: '#/components/schemas/PaginationLinks'
+                  meta:
+                    $ref: '#/components/schemas/PaginationMeta'
+        '401':
+          $ref: '#/components/responses/Unauthenticated'
+    post:
+      tags:
+        - Admin Motorcycles
+      summary: Create motorcycle (Admin)
+      description: Creates a new motorcycle for an authorized brand. Supports image upload via multipart/form-data.
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required:
+                - brand_id
+                - name
+                - price_from
+                - engine_cc
+                - power_hp
+              properties:
+                brand_id:
+                  type: integer
+                  example: 3
+                name:
+                  type: string
+                  example: Apex Sprint 750
+                slug:
+                  type: string
+                  example: apex-sprint-750
+                price_from:
+                  type: number
+                  example: 79000
+                engine_cc:
+                  type: integer
+                  example: 749
+                power_hp:
+                  type: integer
+                  example: 120
+                summary:
+                  type: string
+                  example: Agile middleweight track performer.
+                image:
+                  type: string
+                  format: binary
+                is_featured:
+                  type: boolean
+                  example: false
+                is_published:
+                  type: boolean
+                  example: true
+      responses:
+        '201':
+          description: Motorcycle created successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/Motorcycle'
+        '401':
+          $ref: '#/components/responses/Unauthenticated'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '422':
+          $ref: '#/components/responses/ValidationFailed'
+
+  /admin/motorcycles/{id}:
+    get:
+      tags:
+        - Admin Motorcycles
+      summary: Get motorcycle by ID (Admin)
+      description: Returns motorcycle detail by numeric ID.
+      parameters:
+        - $ref: '#/components/parameters/id'
+      responses:
+        '200':
+          description: Motorcycle detail retrieved
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/Motorcycle'
+        '401':
+          $ref: '#/components/responses/Unauthenticated'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    put:
+      tags:
+        - Admin Motorcycles
+      summary: Update motorcycle (Admin)
+      description: >
+        Updates an existing motorcycle by ID.
+        
+        *Note on File Uploads:* Submit a `POST` request with `_method: PUT` in form-data along with the binary file (`image`).
+      parameters:
+        - $ref: '#/components/parameters/id'
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required:
+                - brand_id
+                - name
+                - price_from
+                - engine_cc
+                - power_hp
+              properties:
+                _method:
+                  type: string
+                  example: PUT
+                brand_id:
+                  type: integer
+                  example: 3
+                name:
+                  type: string
+                  example: Apex Sprint 750 Updated
+                price_from:
+                  type: number
+                  example: 81000
+                engine_cc:
+                  type: integer
+                  example: 749
+                power_hp:
+                  type: integer
+                  example: 125
+                summary:
+                  type: string
+                  example: Updated summary.
+                image:
+                  type: string
+                  format: binary
+                is_featured:
+                  type: boolean
+                  example: true
+                is_published:
+                  type: boolean
+                  example: true
+      responses:
+        '200':
+          description: Motorcycle updated successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/Motorcycle'
+        '401':
+          $ref: '#/components/responses/Unauthenticated'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '422':
+          $ref: '#/components/responses/ValidationFailed'
+    patch:
+      tags:
+        - Admin Motorcycles
+      summary: Partially update motorcycle (Admin)
+      description: Partially updates an existing motorcycle by ID.
+      parameters:
+        - $ref: '#/components/parameters/id'
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                _method:
+                  type: string
+                  example: PATCH
+                name:
+                  type: string
+                  example: Apex Sprint 750 Patched
+      responses:
+        '200':
+          description: Motorcycle updated successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/Motorcycle'
+        '401':
+          $ref: '#/components/responses/Unauthenticated'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '422':
+          $ref: '#/components/responses/ValidationFailed'
+    delete:
+      tags:
+        - Admin Motorcycles
+      summary: Delete motorcycle (Admin)
+      description: Deletes a motorcycle and removes its stored image.
+      parameters:
+        - $ref: '#/components/parameters/id'
+      responses:
+        '204':
+          description: Motorcycle deleted successfully (No Content)
+        '401':
+          $ref: '#/components/responses/Unauthenticated'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /admin/promotions:
+    get:
+      tags:
+        - Admin Promotions
+      summary: List promotions (Admin)
+      description: Returns a paginated list of promotions filtered by actor scope, brand, status, and search query.
+      parameters:
+        - $ref: '#/components/parameters/page'
+        - $ref: '#/components/parameters/per_page'
+        - $ref: '#/components/parameters/search'
+        - $ref: '#/components/parameters/brand_id'
+        - $ref: '#/components/parameters/status'
+      responses:
+        '200':
+          description: Paginated list of promotions
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Promotion'
+                  links:
+                    $ref: '#/components/schemas/PaginationLinks'
+                  meta:
+                    $ref: '#/components/schemas/PaginationMeta'
+        '401':
+          $ref: '#/components/responses/Unauthenticated'
+    post:
+      tags:
+        - Admin Promotions
+      summary: Create promotion (Admin)
+      description: Creates a new promotion for an authorized brand. Supports image upload via multipart/form-data.
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required:
+                - brand_id
+                - title
+                - starts_at
+                - ends_at
+              properties:
+                brand_id:
+                  type: integer
+                  example: 3
+                title:
+                  type: string
+                  example: Spring Track Special
+                description:
+                  type: string
+                  example: Complimentary trackside tuning package with any Apex purchase.
+                image:
+                  type: string
+                  format: binary
+                starts_at:
+                  type: string
+                  format: date
+                  example: '2026-10-01'
+                ends_at:
+                  type: string
+                  format: date
+                  example: '2026-12-31'
+                is_published:
+                  type: boolean
+                  example: true
+      responses:
+        '201':
+          description: Promotion created successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/Promotion'
+        '401':
+          $ref: '#/components/responses/Unauthenticated'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '422':
+          $ref: '#/components/responses/ValidationFailed'
+
+  /admin/promotions/{id}:
+    get:
+      tags:
+        - Admin Promotions
+      summary: Get promotion by ID (Admin)
+      description: Returns promotion detail by numeric ID.
+      parameters:
+        - $ref: '#/components/parameters/id'
+      responses:
+        '200':
+          description: Promotion detail retrieved
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/Promotion'
+        '401':
+          $ref: '#/components/responses/Unauthenticated'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    put:
+      tags:
+        - Admin Promotions
+      summary: Update promotion (Admin)
+      description: >
+        Updates an existing promotion by ID.
+        
+        *Note on File Uploads:* Submit a `POST` request with `_method: PUT` in form-data along with the binary file (`image`).
+      parameters:
+        - $ref: '#/components/parameters/id'
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required:
+                - brand_id
+                - title
+                - starts_at
+                - ends_at
+              properties:
+                _method:
+                  type: string
+                  example: PUT
+                brand_id:
+                  type: integer
+                  example: 3
+                title:
+                  type: string
+                  example: Spring Track Special Updated
+                description:
+                  type: string
+                  example: Updated promotion description.
+                image:
+                  type: string
+                  format: binary
+                starts_at:
+                  type: string
+                  format: date
+                  example: '2026-10-01'
+                ends_at:
+                  type: string
+                  format: date
+                  example: '2026-12-31'
+                is_published:
+                  type: boolean
+                  example: true
+      responses:
+        '200':
+          description: Promotion updated successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/Promotion'
+        '401':
+          $ref: '#/components/responses/Unauthenticated'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '422':
+          $ref: '#/components/responses/ValidationFailed'
+    patch:
+      tags:
+        - Admin Promotions
+      summary: Partially update promotion (Admin)
+      description: Partially updates an existing promotion by ID.
+      parameters:
+        - $ref: '#/components/parameters/id'
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                _method:
+                  type: string
+                  example: PATCH
+                title:
+                  type: string
+                  example: Spring Track Special Patched
+      responses:
+        '200':
+          description: Promotion updated successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/Promotion'
+        '401':
+          $ref: '#/components/responses/Unauthenticated'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '422':
+          $ref: '#/components/responses/ValidationFailed'
+    delete:
+      tags:
+        - Admin Promotions
+      summary: Delete promotion (Admin)
+      description: Deletes a promotion and removes its stored image.
+      parameters:
+        - $ref: '#/components/parameters/id'
+      responses:
+        '204':
+          description: Promotion deleted successfully (No Content)
+        '401':
+          $ref: '#/components/responses/Unauthenticated'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /admin/users:
+    get:
+      tags:
+        - Admin Users
+      summary: List users (Admin)
+      description: Returns a paginated list of users (Admin only).
+      parameters:
+        - $ref: '#/components/parameters/page'
+        - $ref: '#/components/parameters/per_page'
+        - $ref: '#/components/parameters/search'
+      responses:
+        '200':
+          description: Paginated list of users
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/User'
+                  links:
+                    $ref: '#/components/schemas/PaginationLinks'
+                  meta:
+                    $ref: '#/components/schemas/PaginationMeta'
+        '401':
+          $ref: '#/components/responses/Unauthenticated'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+    post:
+      tags:
+        - Admin Users
+      summary: Create user (Admin)
+      description: Creates a new user account with role assignment and optional brand access restrictions for data entry users.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - name
+                - email
+                - password
+                - role
+              properties:
+                name:
+                  type: string
+                  example: Sam Entry
+                email:
+                  type: string
+                  format: email
+                  example: sam.entry@meridian.test
+                password:
+                  type: string
+                  example: SecurePass123
+                role:
+                  type: string
+                  enum: [admin, data_entry]
+                  example: data_entry
+                brand_ids:
+                  type: array
+                  items:
+                    type: integer
+                  example: [2]
+      responses:
+        '201':
+          description: User created successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/User'
+        '401':
+          $ref: '#/components/responses/Unauthenticated'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '422':
+          $ref: '#/components/responses/ValidationFailed'
+
+  /admin/users/{id}:
+    get:
+      tags:
+        - Admin Users
+      summary: Get user by ID (Admin)
+      description: Returns user detail by numeric ID (Admin only).
+      parameters:
+        - $ref: '#/components/parameters/id'
+      responses:
+        '200':
+          description: User detail retrieved
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/User'
+        '401':
+          $ref: '#/components/responses/Unauthenticated'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    put:
+      tags:
+        - Admin Users
+      summary: Update user (Admin)
+      description: Updates an existing user account (Admin only).
+      parameters:
+        - $ref: '#/components/parameters/id'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - name
+                - email
+                - role
+              properties:
+                name:
+                  type: string
+                  example: Sam Entry Updated
+                email:
+                  type: string
+                  format: email
+                  example: sam.entry@meridian.test
+                password:
+                  type: string
+                  example: NewSecurePass123
+                role:
+                  type: string
+                  enum: [admin, data_entry]
+                  example: data_entry
+                brand_ids:
+                  type: array
+                  items:
+                    type: integer
+                  example: [1, 2]
+      responses:
+        '200':
+          description: User updated successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/User'
+        '401':
+          $ref: '#/components/responses/Unauthenticated'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '422':
+          $ref: '#/components/responses/ValidationFailed'
+    patch:
+      tags:
+        - Admin Users
+      summary: Partially update user (Admin)
+      description: Partially updates an existing user account (Admin only).
+      parameters:
+        - $ref: '#/components/parameters/id'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  example: Sam Entry Patched
+      responses:
+        '200':
+          description: User updated successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/User'
+        '401':
+          $ref: '#/components/responses/Unauthenticated'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '422':
+          $ref: '#/components/responses/ValidationFailed'
+    delete:
+      tags:
+        - Admin Users
+      summary: Delete user (Admin)
+      description: Deletes a user account and revokes their active tokens. Self-deletion is prohibited.
+      parameters:
+        - $ref: '#/components/parameters/id'
+      responses:
+        '204':
+          description: User deleted successfully (No Content)
+        '401':
+          $ref: '#/components/responses/Unauthenticated'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '422':
+          description: Cannot delete self exception
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: Sanctum
+
+  parameters:
+    page:
+      name: page
+      in: query
+      description: Page number for pagination
+      required: false
+      schema:
+        type: integer
+        example: 1
+    per_page:
+      name: per_page
+      in: query
+      description: Number of items per page
+      required: false
+      schema:
+        type: integer
+        example: 15
+    search:
+      name: search
+      in: query
+      description: Search query string
+      required: false
+      schema:
+        type: string
+        example: Apex
+    brand_id:
+      name: brand_id
+      in: query
+      description: Filter by brand ID
+      required: false
+      schema:
+        type: integer
+        example: 3
+    status:
+      name: status
+      in: query
+      description: Filter by status (published/active or draft/inactive)
+      required: false
+      schema:
+        type: string
+        example: published
+    id:
+      name: id
+      in: path
+      description: Numeric resource ID
+      required: true
+      schema:
+        type: integer
+        example: 1
+    slug:
+      name: slug
+      in: path
+      description: Resource slug identifier
+      required: true
+      schema:
+        type: string
+        example: apex-rs-900
+    featured:
+      name: featured
+      in: query
+      description: Filter by featured status (1/0 or true/false)
+      required: false
+      schema:
+        type: boolean
+        example: true
+    brand:
+      name: brand
+      in: query
+      description: Filter by brand slug
+      required: false
+      schema:
+        type: string
+        example: apex
+
+  responses:
+    Unauthenticated:
+      description: Unauthenticated or invalid token
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    Forbidden:
+      description: Forbidden action or insufficient role/brand permissions
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    NotFound:
+      description: Resource not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    ValidationFailed:
+      description: Unprocessable entity / validation failed
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ValidationError'
+    TooManyRequests:
+      description: Too many requests / rate limit exceeded
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+
+  schemas:
+    Error:
+      type: object
+      properties:
+        message:
+          type: string
+          example: Unauthenticated.
+    ValidationError:
+      type: object
+      properties:
+        message:
+          type: string
+          example: The given data was invalid.
+        errors:
+          type: object
+          additionalProperties:
+            type: array
+            items:
+              type: string
+          example:
+            email: ["The email field is required."]
+    PaginationMeta:
+      type: object
+      properties:
+        current_page:
+          type: integer
+          example: 1
+        from:
+          type: integer
+          example: 1
+        last_page:
+          type: integer
+          example: 1
+        per_page:
+          type: integer
+          example: 15
+        to:
+          type: integer
+          example: 5
+        total:
+          type: integer
+          example: 5
+    PaginationLinks:
+      type: object
+      properties:
+        first:
+          type: string
+          example: "http://localhost:8000/api/v1/motorcycles?page=1"
+        last:
+          type: string
+          example: "http://localhost:8000/api/v1/motorcycles?page=1"
+        prev:
+          type: string
+          nullable: true
+          example: null
+        next:
+          type: string
+          nullable: true
+          example: null
+    Brand:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 3
+        name:
+          type: string
+          example: Apex
+        slug:
+          type: string
+          example: apex
+        segment:
+          type: string
+          example: Performance
+        accent_color:
+          type: string
+          example: '#E5322D'
+    BrandDetail:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 3
+        name:
+          type: string
+          example: Apex
+        slug:
+          type: string
+          example: apex
+        segment:
+          type: string
+          example: Performance
+        tagline:
+          type: string
+          example: Pure track-bred adrenaline.
+        description:
+          type: string
+          example: Apex merges cutting-edge racing aerodynamics.
+        accent_color:
+          type: string
+          example: '#E5322D'
+        logo_url:
+          type: string
+          nullable: true
+          example: "http://localhost:8000/storage/brands/apex.svg"
+        hero_image_url:
+          type: string
+          nullable: true
+          example: "http://localhost:8000/storage/hero/apex.svg"
+        motorcycles:
+          type: array
+          items:
+            $ref: '#/components/schemas/Motorcycle'
+        promotions:
+          type: array
+          items:
+            $ref: '#/components/schemas/Promotion'
+    SiteBrand:
+      type: object
+      properties:
+        name:
+          type: string
+          example: Apex
+        slug:
+          type: string
+          example: apex
+        segment:
+          type: string
+          example: Performance
+        tagline:
+          type: string
+          example: Pure track-bred adrenaline.
+        description:
+          type: string
+          example: Apex merges cutting-edge racing aerodynamics.
+        accent_color:
+          type: string
+          example: '#E5322D'
+        logo_url:
+          type: string
+          nullable: true
+          example: "http://localhost:8000/storage/brands/apex.svg"
+        hero_image_url:
+          type: string
+          nullable: true
+          example: "http://localhost:8000/storage/hero/apex.svg"
+    SiteBrandSummary:
+      type: object
+      properties:
+        name:
+          type: string
+          example: Apex
+        slug:
+          type: string
+          example: apex
+        segment:
+          type: string
+          example: Performance
+        accent_color:
+          type: string
+          example: '#E5322D'
+    SiteBrandDetail:
+      type: object
+      properties:
+        name:
+          type: string
+          example: Apex
+        slug:
+          type: string
+          example: apex
+        segment:
+          type: string
+          example: Performance
+        tagline:
+          type: string
+          example: Pure track-bred adrenaline.
+        description:
+          type: string
+          example: Apex merges cutting-edge racing aerodynamics.
+        accent_color:
+          type: string
+          example: '#E5322D'
+        logo_url:
+          type: string
+          nullable: true
+          example: "http://localhost:8000/storage/brands/apex.svg"
+        hero_image_url:
+          type: string
+          nullable: true
+          example: "http://localhost:8000/storage/hero/apex.svg"
+        motorcycles:
+          type: array
+          items:
+            $ref: '#/components/schemas/SiteMotorcycle'
+        promotions:
+          type: array
+          items:
+            $ref: '#/components/schemas/SitePromotion'
+    Motorcycle:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        name:
+          type: string
+          example: Apex RS 900
+        slug:
+          type: string
+          example: apex-rs-900
+        price_from:
+          type: number
+          example: 89000
+        engine_cc:
+          type: integer
+          example: 899
+        power_hp:
+          type: integer
+          example: 145
+        summary:
+          type: string
+          example: Flagship track hyper-sport.
+        image_url:
+          type: string
+          nullable: true
+          example: "http://localhost:8000/storage/motorcycles/apex-rs-900.webp"
+        is_featured:
+          type: boolean
+          example: true
+        is_published:
+          type: boolean
+          example: true
+        brand:
+          $ref: '#/components/schemas/Brand'
+        created_at:
+          type: string
+          format: date-time
+          example: "2026-10-08T08:00:00.000000Z"
+        updated_at:
+          type: string
+          format: date-time
+          example: "2026-10-08T08:00:00.000000Z"
+    SiteMotorcycle:
+      type: object
+      properties:
+        name:
+          type: string
+          example: Apex RS 900
+        slug:
+          type: string
+          example: apex-rs-900
+        price_from:
+          type: number
+          example: 89000
+        engine_cc:
+          type: integer
+          example: 899
+        power_hp:
+          type: integer
+          example: 145
+        summary:
+          type: string
+          example: Flagship track hyper-sport.
+        image_url:
+          type: string
+          nullable: true
+          example: "http://localhost:8000/storage/motorcycles/apex-rs-900.webp"
+        is_featured:
+          type: boolean
+          example: true
+        brand:
+          $ref: '#/components/schemas/SiteBrandSummary'
+    Promotion:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        title:
+          type: string
+          example: Autumn Track Days
+        description:
+          type: string
+          example: Free track day session with any Apex motorcycle purchase.
+        image_url:
+          type: string
+          nullable: true
+          example: "http://localhost:8000/storage/promotions/autumn.webp"
+        starts_at:
+          type: string
+          format: date
+          example: "2026-10-01"
+        ends_at:
+          type: string
+          format: date
+          example: "2026-12-31"
+        is_published:
+          type: boolean
+          example: true
+        brand:
+          $ref: '#/components/schemas/Brand'
+        created_by:
+          type: string
+          example: Admin User
+        created_at:
+          type: string
+          format: date-time
+          example: "2026-10-08T08:00:00.000000Z"
+        updated_at:
+          type: string
+          format: date-time
+          example: "2026-10-08T08:00:00.000000Z"
+    SitePromotion:
+      type: object
+      properties:
+        title:
+          type: string
+          example: Autumn Track Days
+        description:
+          type: string
+          example: Free track day session with any Apex motorcycle purchase.
+        image_url:
+          type: string
+          nullable: true
+          example: "http://localhost:8000/storage/promotions/autumn.webp"
+        starts_at:
+          type: string
+          format: date-time
+          example: "2026-10-01T00:00:00.000000Z"
+        ends_at:
+          type: string
+          format: date-time
+          example: "2026-12-31T23:59:59.000000Z"
+        brand:
+          $ref: '#/components/schemas/SiteBrandSummary'
+    Location:
+      type: object
+      properties:
+        name:
+          type: string
+          example: Dubai Flagship Showroom
+        type:
+          type: string
+          example: showroom
+        city:
+          type: string
+          example: Dubai
+        address:
+          type: string
+          example: Sheikh Zayed Road, Exit 4
+        phone:
+          type: string
+          example: "+97141234567"
+        latitude:
+          type: number
+          nullable: true
+          example: 25.2048
+        longitude:
+          type: number
+          nullable: true
+          example: 55.2708
+    User:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        name:
+          type: string
+          example: Admin User
+        email:
+          type: string
+          example: admin@meridian.test
+        role:
+          type: string
+          nullable: true
+          example: admin
+        brands:
+          type: array
+          items:
+            $ref: '#/components/schemas/Brand'
+    AuthResponse:
+      type: object
+      properties:
+        token:
+          type: string
+          example: "1|laravel_sanctum_token_example..."
+        token_type:
+          type: string
+          example: Bearer
+        user:
+          $ref: '#/components/schemas/User'
+    TestRideResource:
+      type: object
+      properties:
+        name:
+          type: string
+          example: Layla Hassan
+        preferred_date:
+          type: string
+          format: date
+          example: "2026-11-15"
+        motorcycle:
+          type: object
+          properties:
+            name:
+              type: string
+              example: Apex RS 900
+            slug:
+              type: string
+              example: apex-rs-900
