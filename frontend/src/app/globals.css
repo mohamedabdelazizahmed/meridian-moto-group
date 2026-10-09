@@ -1,0 +1,37 @@
+@import "tailwindcss";
+
+@theme {
+  --font-inter: var(--font-inter), sans-serif;
+  --font-barlow: var(--font-barlow), sans-serif;
+
+  --color-moto-bg: #0B0B0D;
+  --color-moto-surface: #141418;
+  --color-moto-border: #26262C;
+  --color-moto-text: #F4F1EA;
+  --color-moto-muted: #9A9AA3;
+  --color-moto-copper: #C8873A;
+  --color-moto-volt: #22D3C5;
+  --color-moto-nomad: #A8B36A;
+  --color-moto-apex: #E5322D;
+  --color-moto-sovereign: #C9CDD6;
+}
+
+:root {
+  --background: #0B0B0D;
+  --foreground: #F4F1EA;
+}
+
+body {
+  background-color: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-inter), sans-serif;
+  font-size: 16px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-barlow), sans-serif;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
