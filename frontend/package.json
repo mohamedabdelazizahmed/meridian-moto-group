@@ -7,7 +7,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "test": "vitest run"
+    "test": "vitest run",
+    "api:types": "openapi-typescript ../backend/resources/openapi/openapi.yaml -o src/types/api.d.ts"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.9.1",
@@ -16,16 +17,21 @@
     "@testing-library/react": "^16.3.3",
     "@testing-library/user-event": "^14.6.7",
     "@types/leaflet": "^1.9.22",
+    "clsx": "^2.1.1",
     "jsdom": "^30.1.2",
     "leaflet": "^1.9.4",
+    "lucide-react": "^1.55.0",
     "next": "16.4.0",
     "react": "19.3.0",
     "react-dom": "19.3.0",
     "react-hook-form": "^7.89.0",
     "react-leaflet": "^5.0.0",
+    "sonner": "^2.0.8",
     "swiper": "^14.3.0",
+    "tailwind-merge": "^3.7.0",
     "vitest": "^5.0.3",
-    "zod": "^4.6.5"
+    "zod": "^4.6.5",
+    "zustand": "^5.0.15"
   },
   "devDependencies": {
     "@tailwindcss/turbopack": "^4",

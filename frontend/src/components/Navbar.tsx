@@ -2,9 +2,11 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
+import { useUiStore } from "@/store/ui.store";
+import { Routes } from "@/lib/routes";
 
 export default function Navbar() {
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const { mobileMenuOpen, toggleMobileMenu, setMobileMenuOpen } = useUiStore();
   const [scrolled, setScrolled] = useState(false);
 
   useEffect(() => {
@@ -23,7 +25,7 @@ export default function Navbar() {
     }`}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
         {/* Brand Wordmark */}
-        <Link href="/" className="flex items-center gap-3 group">
+        <Link href={Routes.Home} className="flex items-center gap-3 group">
           <div className="w-3 h-3 bg-moto-copper rotate-45 transition-transform group-hover:rotate-90"></div>
           <span className="font-barlow font-bold text-xl sm:text-2xl tracking-[0.15em] text-moto-text uppercase">
             MERIDIAN <span className="text-moto-copper font-normal">MOTO GROUP</span>
@@ -36,7 +38,7 @@ export default function Navbar() {
             <span className="w-1.5 h-1.5 rounded-full bg-moto-apex"></span>
             Marques
           </Link>
-          <Link href="/models/apex-rs-900" className="text-moto-apex hover:text-white transition-colors">
+          <Link href={Routes.ModelDetail("apex-rs-900")} className="text-moto-apex hover:text-white transition-colors">
             Apex RS 900
           </Link>
           <Link href="/#regional-hubs" className="text-moto-muted hover:text-moto-text transition-colors">
@@ -45,7 +47,7 @@ export default function Navbar() {
           <Link href="/#concierge" className="text-moto-muted hover:text-moto-text transition-colors">
             Experience Concierge
           </Link>
-          <Link href="/cms/login" className="text-moto-muted hover:text-moto-copper transition-colors border border-moto-border px-3 py-1 rounded bg-moto-surface/50">
+          <Link href={Routes.CmsLogin} className="text-moto-muted hover:text-moto-copper transition-colors border border-moto-border px-3 py-1 rounded bg-moto-surface/50">
             CMS Portal
           </Link>
         </nav>
@@ -53,7 +55,7 @@ export default function Navbar() {
         {/* Action CTAs */}
         <div className="hidden lg:flex items-center space-x-4">
           <Link
-            href="/models/apex-rs-900#reserve"
+            href={`${Routes.ModelDetail("apex-rs-900")}#reserve`}
             className="bg-moto-copper text-moto-bg font-barlow font-bold text-sm tracking-[0.08em] uppercase px-5 py-2.5 rounded hover:bg-moto-copper/90 transition-all shadow-lg shadow-moto-copper/10 active:scale-95"
           >
             Book Test Ride
@@ -63,7 +65,7 @@ export default function Navbar() {
         {/* Mobile Menu Trigger */}
         <button
           type="button"
-          onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+          onClick={toggleMobileMenu}
           className="lg:hidden p-2 text-moto-muted hover:text-moto-text focus:outline-none"
           aria-label="Toggle Navigation Menu"
         >
@@ -91,7 +93,7 @@ export default function Navbar() {
               Marques (Apex • Volt • Nomad • Sovereign)
             </Link>
             <Link
-              href="/models/apex-rs-900"
+              href={Routes.ModelDetail("apex-rs-900")}
               onClick={() => setMobileMenuOpen(false)}
               className="px-3 py-2 text-moto-apex hover:bg-moto-bg/50 rounded flex items-center justify-between"
             >
@@ -113,7 +115,7 @@ export default function Navbar() {
               Experience Concierge
             </Link>
             <Link
-              href="/models/apex-rs-900#reserve"
+              href={`${Routes.ModelDetail("apex-rs-900")}#reserve`}
               onClick={() => setMobileMenuOpen(false)}
               className="bg-moto-copper text-moto-bg text-center py-3 rounded font-barlow font-bold uppercase"
             >

@@ -1,54 +1,10 @@
-const API_BASE_URL = process.env.NEXT_PUBLIC_LARAVEL_API_URL || "http://localhost:8000/api/v1";
+import { getApiBaseUrl } from "@/lib/env";
+import { HttpStatus } from "@/lib/http";
+import type { Brand, Motorcycle, LocationItem, Promotion } from "@/types/api";
 
-export interface Brand {
-  id?: number;
-  name: string;
-  slug: string;
-  segment?: string;
-  tagline?: string;
-  description?: string;
-  accent_color?: string;
-  logo_url?: string;
-}
+export type { Brand, Motorcycle, LocationItem, Promotion };
 
-export interface Motorcycle {
-  id?: number;
-  name: string;
-  slug: string;
-  price_from: number;
-  engine_cc?: number;
-  power_hp?: number;
-  torque_nm?: number;
-  dry_weight_kg?: number;
-  top_speed_kmh?: number;
-  acceleration_0_100?: string;
-  summary?: string;
-  image_url?: string;
-  is_featured?: boolean;
-  brand?: Brand;
-}
-
-export interface LocationItem {
-  id?: number;
-  name: string;
-  type: string;
-  city: string;
-  address: string;
-  phone: string;
-  email?: string;
-  hours?: string;
-  latitude?: number;
-  longitude?: number;
-}
-
-export interface Promotion {
-  id?: number;
-  title: string;
-  description: string;
-  image_url?: string;
-  starts_at?: string;
-  ends_at?: string;
-}
+const API_BASE_URL = getApiBaseUrl();
 
 async function fetchApi<T>(endpoint: string): Promise<T | null> {
   try {
@@ -56,7 +12,9 @@ async function fetchApi<T>(endpoint: string): Promise<T | null> {
       next: { revalidate: 60 },
     });
     if (!res.ok) {
-      console.error(`API error: ${res.status} on ${endpoint}`);
+      if (res.status !== HttpStatus.NOT_FOUND) {
+        console.error(`API error: ${res.status} on ${endpoint}`);
+      }
       return null;
     }
     const json = await res.json();

@@ -5,9 +5,11 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
 import { testRideSchema, TestRideFormData } from "./testRideSchema";
+import { getApiBaseUrl } from "@/lib/env";
+import { HttpStatus } from "@/lib/http";
 import { Motorcycle } from "@/services/api";
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_LARAVEL_API_URL || "http://localhost:8000/api/v1";
+const API_BASE_URL = getApiBaseUrl();
 
 interface TestRideFormProps {
   motorcycles: Motorcycle[];
@@ -54,13 +56,13 @@ export default function TestRideForm({ motorcycles }: TestRideFormProps) {
 
       const json = await res.json();
 
-      if (res.status === 422) {
-        throw { status: 422, errors: json.errors, message: json.message };
+      if (res.status === HttpStatus.UNPROCESSABLE_ENTITY) {
+        throw { status: HttpStatus.UNPROCESSABLE_ENTITY, errors: json.errors, message: json.message };
       }
-      if (res.status === 429) {
-        throw { status: 429, message: "Too many attempts. Please try again later." };
+      if (res.status === HttpStatus.TOO_MANY_REQUESTS) {
+        throw { status: HttpStatus.TOO_MANY_REQUESTS, message: "Too many attempts. Please try again later." };
       }
-      if (!res.ok && res.status !== 201) {
+      if (!res.ok && res.status !== HttpStatus.CREATED) {
         throw { status: res.status, message: json.message || "An unexpected error occurred." };
       }
 
