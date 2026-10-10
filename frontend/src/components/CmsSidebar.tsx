@@ -2,6 +2,8 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useAuthStore } from "@/store/auth.store";
+import { Routes } from "@/lib/routes";
 
 interface CmsSidebarProps {
   currentRole?: "data_entry" | "admin";
@@ -12,6 +14,8 @@ export default function CmsSidebar({ currentRole = "data_entry", onToggleRole }:
   const pathname = usePathname();
 
   const isModelsActive = pathname === "/cms/models" || pathname === "/cms";
+  const isBrandsActive = pathname === "/cms/brands";
+  const isPromotionsActive = pathname === "/cms/promotions";
   const isUsersActive = pathname === "/cms/admin/users";
 
   return (
@@ -91,15 +95,37 @@ export default function CmsSidebar({ currentRole = "data_entry", onToggleRole }:
             </span>
           </Link>
 
-          <div className="px-3 py-2 text-moto-muted/40 cursor-not-allowed flex items-center justify-between">
+          <Link
+            href="/cms/brands"
+            className={`flex items-center justify-between px-3 py-2.5 rounded transition-colors ${
+              isBrandsActive
+                ? "bg-moto-copper/15 text-moto-copper border border-moto-copper/30 font-semibold"
+                : "text-moto-muted hover:text-moto-text hover:bg-moto-bg/50"
+            }`}
+          >
             <div className="flex items-center gap-2.5">
-              <svg className="w-4 h-4 opacity-40" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 7h10M7 12h10m-7 5h7" />
               </svg>
               <span>Marque Brands</span>
             </div>
-            <span className="text-[10px] text-moto-muted/40 uppercase">Read-only</span>
-          </div>
+          </Link>
+
+          <Link
+            href="/cms/promotions"
+            className={`flex items-center justify-between px-3 py-2.5 rounded transition-colors ${
+              isPromotionsActive
+                ? "bg-moto-copper/15 text-moto-copper border border-moto-copper/30 font-semibold"
+                : "text-moto-muted hover:text-moto-text hover:bg-moto-bg/50"
+            }`}
+          >
+            <div className="flex items-center gap-2.5">
+              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v13m0-13V6a2 2 0 112 2h-2zm0 0V5.5A2.5 2.5 0 109.5 8H12zm-7 4h14M5 16h14" />
+              </svg>
+              <span>Promotions</span>
+            </div>
+          </Link>
 
           {/* RBAC Section for Admin */}
           <div className="pt-4 px-3 py-2 text-[11px] font-mono tracking-widest text-moto-muted uppercase flex items-center justify-between">
@@ -148,12 +174,21 @@ export default function CmsSidebar({ currentRole = "data_entry", onToggleRole }:
           </svg>
           <span>Return to Consumer Website</span>
         </Link>
-        <Link
-          href="/cms/login"
-          className="block w-full text-center text-xs font-barlow font-bold uppercase tracking-wider text-moto-muted hover:text-moto-apex border border-moto-border py-2 rounded bg-moto-bg hover:border-moto-apex/40 transition-colors"
+        <button
+          type="button"
+          onClick={async () => {
+            try {
+              await fetch("/api/auth/logout", { method: "POST" });
+            } catch {
+              // ignore
+            }
+            useAuthStore.getState().clear();
+            window.location.href = Routes.CmsLogin;
+          }}
+          className="block w-full text-center text-xs font-barlow font-bold uppercase tracking-wider text-moto-muted hover:text-moto-apex border border-moto-border py-2 rounded bg-moto-bg hover:border-moto-apex/40 transition-colors cursor-pointer"
         >
           Sign Out
-        </Link>
+        </button>
       </div>
     </aside>
   );

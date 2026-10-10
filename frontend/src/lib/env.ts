@@ -13,13 +13,23 @@ export function getApiBaseUrl(): string {
     SITE_URL: process.env.SITE_URL,
   });
 
-  const apiBase = parsed.success ? parsed.data.NEXT_PUBLIC_API_URL : "http://localhost:8000/api/v1";
-  const internalBase = parsed.success ? parsed.data.API_INTERNAL_URL : undefined;
+  const env = parsed.success ? parsed.data : {
+    NEXT_PUBLIC_API_URL: "http://localhost:8000/api/v1",
+    API_INTERNAL_URL: undefined,
+    SITE_URL: "http://localhost:3000",
+  };
 
   if (typeof window === "undefined") {
-    // Server-side
-    return internalBase || apiBase;
+    return env.API_INTERNAL_URL || env.NEXT_PUBLIC_API_URL;
   }
-  // Client-side
-  return apiBase;
+  return env.NEXT_PUBLIC_API_URL;
+}
+
+export function getSiteUrl(): string {
+  const parsed = envSchema.safeParse({
+    NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL,
+    API_INTERNAL_URL: process.env.API_INTERNAL_URL,
+    SITE_URL: process.env.SITE_URL,
+  });
+  return parsed.success ? parsed.data.SITE_URL : "http://localhost:3000";
 }
