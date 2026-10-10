@@ -46,25 +46,28 @@ export async function adminFetch<T = unknown>(path: string, init?: RequestInit):
 
   if (res.status === HttpStatus.FORBIDDEN) {
     toast.error("You do not have access to this resource.");
-    throw new ApiError(HttpStatus.FORBIDDEN, json?.message || "Forbidden.");
+    const msg = typeof json?.message === 'string' ? json.message : "Forbidden.";
+    throw new ApiError(HttpStatus.FORBIDDEN, msg);
   }
 
   if (res.status === HttpStatus.UNPROCESSABLE_ENTITY) {
+    const msg = typeof json?.message === 'string' ? json.message : "Validation failed.";
+    const errs = typeof json?.errors === 'object' && json?.errors !== null ? (json.errors as Record<string, string[]>) : undefined;
     throw new ApiError(
       HttpStatus.UNPROCESSABLE_ENTITY,
-      json?.message || "Validation failed.",
-      json?.errors
+      msg,
+      errs
     );
   }
 
   if (res.status === HttpStatus.TOO_MANY_REQUESTS) {
-    const msg = json?.message || "Too many requests. Please try again later.";
+    const msg = typeof json?.message === 'string' ? json.message : "Too many requests. Please try again later.";
     toast.error(msg);
     throw new ApiError(HttpStatus.TOO_MANY_REQUESTS, msg);
   }
 
   if (!res.ok) {
-    const msg = json?.message || `Request failed with status ${res.status}`;
+    const msg = typeof json?.message === 'string' ? json.message : `Request failed with status ${res.status}`;
     toast.error(msg);
     throw new ApiError(res.status, msg);
   }

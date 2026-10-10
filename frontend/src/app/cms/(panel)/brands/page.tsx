@@ -64,8 +64,9 @@ export default function CmsBrandsPage() {
       setIsModalOpen(false);
       resetForm();
     },
-    onError: (err: any) => {
-      toast.error(err.message || "Failed to save brand.");
+    onError: (err: unknown) => {
+      const message = err instanceof Error ? err.message : "Failed to save brand.";
+      toast.error(message);
     },
   });
 
@@ -80,8 +81,9 @@ export default function CmsBrandsPage() {
       queryClient.invalidateQueries({ queryKey: ["admin-brands"] });
       setDeletingBrandId(null);
     },
-    onError: (err: any) => {
-      toast.error(err.message || "Failed to delete brand.");
+    onError: (err: unknown) => {
+      const message = err instanceof Error ? err.message : "Failed to delete brand.";
+      toast.error(message);
     },
   });
 

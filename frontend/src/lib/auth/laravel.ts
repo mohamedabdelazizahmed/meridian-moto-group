@@ -33,19 +33,19 @@ export async function laravelFetch<T = unknown>(
       cache: "no-store",
     });
 
-    let body: unknown = null;
+    let body = null as unknown as T;
     const contentType = res.headers.get("content-type");
     if (contentType && contentType.includes("application/json")) {
       try {
-        body = await res.json();
+        body = (await res.json()) as T;
       } catch {
-        body = null;
+        // body remains default
       }
     } else {
       try {
-        body = await res.text();
+        body = (await res.text()) as T;
       } catch {
-        body = null;
+        // body remains default
       }
     }
 
@@ -57,7 +57,7 @@ export async function laravelFetch<T = unknown>(
   } catch {
     return {
       status: 502,
-      body: { message: "Upstream unavailable." } as unknown as T,
+      body: ({ message: "Upstream unavailable." } as { message: string }) as unknown as T,
       headers: new Headers(),
     };
   }

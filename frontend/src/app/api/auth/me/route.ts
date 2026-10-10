@@ -21,7 +21,8 @@ export async function GET() {
   }
 
   if (res.status === HttpStatus.OK && res.body) {
-    const user = (res.body as any).data || (res.body as any).user || res.body;
+    const bodyObj = res.body as Record<string, unknown>;
+    const user = bodyObj.data || bodyObj.user || res.body;
     const response = NextResponse.json({ user }, { status: HttpStatus.OK });
     response.headers.set("Cache-Control", "no-store");
     return response;

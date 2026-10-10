@@ -11,6 +11,7 @@ import { useAuthStore } from '@/store/auth.store';
 import { Routes } from '@/lib/routes';
 import { HttpStatus } from '@/lib/http';
 import { validateNextParam } from '@/lib/auth/access';
+import type { AuthUser } from '@/types/api';
 
 const loginFormSchema = z.object({
   email: z.string().email('Please enter a valid corporate email address.'),
@@ -64,8 +65,8 @@ export default function CmsLoginContent() {
       }
 
       if (res.status === HttpStatus.OK) {
-        if (json?.user) {
-          setUser(json.user);
+        if (json?.user && typeof json.user === 'object') {
+          setUser(json.user as AuthUser);
         }
         const target = validateNextParam(nextParam);
         router.replace(target);
@@ -93,11 +94,13 @@ export default function CmsLoginContent() {
         const retryHeader = res.headers.get('retry-after');
         const seconds = retryHeader ? parseInt(retryHeader, 10) : 60;
         setRetryAfterSeconds(isNaN(seconds) ? 60 : seconds);
-        setServerError(json?.message || `Too many attempts. Please try again in ${seconds} seconds.`);
+        const errorMsg = typeof json?.message === 'string' ? json.message : `Too many attempts. Please try again in ${seconds} seconds.`;
+        setServerError(errorMsg);
         return;
       }
 
-      setServerError(json?.message || 'Authentication failed. Please try again.');
+      const defaultErrorMsg = typeof json?.message === 'string' ? json.message : 'Authentication failed. Please try again.';
+      setServerError(defaultErrorMsg);
     } catch {
       setServerError('Network error or server unavailable. Please check your connection.');
     }

@@ -66,8 +66,9 @@ export default function CmsPromotionsPage() {
       setIsModalOpen(false);
       resetForm();
     },
-    onError: (err: any) => {
-      toast.error(err.message || "Failed to save promotion.");
+    onError: (err: unknown) => {
+      const message = err instanceof Error ? err.message : "Failed to save promotion.";
+      toast.error(message);
     },
   });
 
@@ -82,8 +83,9 @@ export default function CmsPromotionsPage() {
       queryClient.invalidateQueries({ queryKey: ["admin-promotions"] });
       setDeletingPromoId(null);
     },
-    onError: (err: any) => {
-      toast.error(err.message || "Failed to delete promotion.");
+    onError: (err: unknown) => {
+      const message = err instanceof Error ? err.message : "Failed to delete promotion.";
+      toast.error(message);
     },
   });
 

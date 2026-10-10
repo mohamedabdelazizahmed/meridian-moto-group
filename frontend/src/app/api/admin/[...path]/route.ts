@@ -62,7 +62,7 @@ async function handleProxy(request: NextRequest, context: RouteContext) {
   const res = await laravelFetch(upstreamEndpoint, {
     method,
     headers: upstreamHeaders,
-    body: body as any,
+    body: body as BodyInit | null,
     token,
   });
 
@@ -87,7 +87,7 @@ async function handleProxy(request: NextRequest, context: RouteContext) {
       ? JSON.stringify(res.body)
       : res.body;
 
-  return new NextResponse(responseBody as any, {
+  return new NextResponse(responseBody as BodyInit | null, {
     status: res.status,
     headers: responseHeaders,
   });
