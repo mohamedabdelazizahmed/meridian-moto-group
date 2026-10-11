@@ -1,6 +1,5 @@
 export const Routes = {
   Home: "/",
-  ModelDetail: (slug: string) => `/models/${slug}`,
   CmsLogin: "/cms/login",
   CmsModels: "/cms/models",
   CmsPromotions: "/cms/promotions",

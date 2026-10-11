@@ -13,14 +13,13 @@ async function fetchApi<T>(endpoint: string): Promise<T | null> {
     });
     if (!res.ok) {
       if (res.status !== HttpStatus.NOT_FOUND) {
-        console.error(`API error: ${res.status} on ${endpoint}`);
+        // API error handled gracefully by caller error states
       }
       return null;
     }
     const json = await res.json();
     return json.data ?? json;
-  } catch (err) {
-    console.error(`Fetch exception on ${endpoint}:`, err);
+  } catch {
     return null;
   }
 }

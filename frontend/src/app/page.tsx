@@ -6,7 +6,6 @@ import Link from "next/link";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import RevealOnScroll from "@/components/RevealOnScroll";
-import DynamicLocationsMap from "@/components/DynamicLocationsMap";
 import TestRideForm from "@/features/test-ride/TestRideForm";
 import { 
   getFeaturedMotorcycles, 
@@ -23,7 +22,6 @@ import 'swiper/css';
 import 'swiper/css/navigation';
 import 'swiper/css/pagination';
 
-// High quality motorcycle photography assets
 const STITCH_IMAGES = {
   heroAttack: "/images/motorcycles/volt-pulse-rs.svg",
   apexProfile: "/images/motorcycles/apex-rs-900.svg",
@@ -42,82 +40,6 @@ interface HubInfo {
   hours: string;
   vipContact: string;
 }
-
-const DEFAULT_HUBS: HubInfo[] = [
-  {
-    id: "dubai",
-    city: "Dubai",
-    country: "United Arab Emirates",
-    name: "Dubai Flagship Atelier",
-    location: "Sheikh Zayed Road, Exit 41, Dubai, UAE",
-    phone: "+971 4 800 6686",
-    hours: "Sat – Thu: 09:00 – 21:00",
-    vipContact: "dubai.vip@meridianmoto.ae",
-  },
-  {
-    id: "riyadh",
-    city: "Riyadh",
-    country: "Kingdom of Saudi Arabia",
-    name: "Riyadh Pit-Bay Lounge",
-    location: "King Fahd Road, Al Olaya, Riyadh, KSA",
-    phone: "+966 11 400 9000",
-    hours: "Sat – Thu: 10:00 – 22:00",
-    vipContact: "riyadh.vip@meridianmoto.ae",
-  },
-  {
-    id: "doha",
-    city: "Doha",
-    country: "State of Qatar",
-    name: "Doha Circuit Atelier",
-    location: "Lusail Marina District, Doha, Qatar",
-    phone: "+974 44 800 700",
-    hours: "Sat – Thu: 09:30 – 20:30",
-    vipContact: "doha.vip@meridianmoto.ae",
-  },
-];
-
-const DEFAULT_BRANDS: Brand[] = [
-  { name: "Apex", slug: "apex", segment: "Circuit" },
-  { name: "Volt", slug: "volt", segment: "EV" },
-  { name: "Nomad", slug: "nomad", segment: "Touring" },
-  { name: "Sovereign", slug: "sovereign", segment: "Cruiser" },
-];
-
-const DEFAULT_MOTORCYCLES: Motorcycle[] = [
-  {
-    name: "APEX RS 900",
-    slug: "apex-rs-900",
-    price_from: 148000,
-    power_hp: 214,
-    dry_weight_kg: 164,
-    summary: "900cc Inline-4 • Aerodynamic Carbon Aero-Winglets",
-    brand: { name: "Apex", slug: "apex", segment: "Circuit" }
-  },
-  {
-    name: "VOLT PULSE RS",
-    slug: "volt-pulse-rs",
-    price_from: 115000,
-    power_hp: 161,
-    summary: "High-Torque EV Motor • Connected Avionics TFT",
-    brand: { name: "Volt", slug: "volt", segment: "EV" }
-  },
-  {
-    name: "NOMAD HORIZON 1250",
-    slug: "nomad-horizon-1250",
-    price_from: 112500,
-    power_hp: 145,
-    summary: "1250cc Boxer Twin • Heavy-Duty Off-Road Chassis",
-    brand: { name: "Nomad", slug: "nomad", segment: "Touring" }
-  },
-  {
-    name: "SOVEREIGN WRAITH 1800",
-    slug: "sovereign-wraith-1800",
-    price_from: 165000,
-    power_hp: 126,
-    summary: "1800cc Big-Bore Cruiser • Handcrafted Titanium",
-    brand: { name: "Sovereign", slug: "sovereign", segment: "Cruiser" }
-  }
-];
 
 const getAccentClasses = (slug?: string) => {
   switch (slug) {
@@ -177,6 +99,8 @@ export default function ConsumerHomepage() {
   const [locations, setLocations] = useState<LocationItem[]>([]);
   const [brands, setBrands] = useState<Brand[]>([]);
   const [motorcycles, setMotorcycles] = useState<Motorcycle[]>([]);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [apiError, setApiError] = useState<boolean>(false);
 
   useEffect(() => {
     async function loadData() {
@@ -186,47 +110,43 @@ export default function ConsumerHomepage() {
           getLocations(),
           getBrands(),
         ]);
-        if (motosData.length > 0) setMotorcycles(motosData);
-        if (locsData.length > 0) setLocations(locsData);
-        if (brandsData.length > 0) setBrands(brandsData);
-      } catch (err) {
-        console.error("Failed to load homepage API data:", err);
+        setMotorcycles(motosData);
+        setLocations(locsData);
+        setBrands(brandsData);
+      } catch {
+        setApiError(true);
+      } finally {
+        setIsLoading(false);
       }
     }
     loadData();
   }, []);
 
-  // Map locations to hubs if available, or fall back to defaults
-  const regionalHubs: HubInfo[] = locations.length > 0 
-    ? locations.map((loc) => ({
-        id: loc.city.toLowerCase().replace(/\s+/g, '-'),
-        city: loc.city,
-        country: loc.type === 'service' ? 'United Arab Emirates' : 'Regional Hub',
-        name: loc.name,
-        location: loc.address,
-        phone: loc.phone || "+971 4 800 6686",
-        hours: loc.hours || "Sat – Thu: 09:00 – 21:00",
-        vipContact: `${loc.city.toLowerCase().replace(/\s+/g, '')}.vip@meridianmoto.ae`,
-      }))
-    : DEFAULT_HUBS;
+  const regionalHubs: HubInfo[] = locations.map((loc) => ({
+    id: loc.city.toLowerCase().replace(/\s+/g, '-'),
+    city: loc.city,
+    country: loc.type === 'service' ? 'United Arab Emirates' : 'Regional Hub',
+    name: loc.name,
+    location: loc.address,
+    phone: loc.phone || "+971 4 800 6686",
+    hours: loc.hours || "Sat – Thu: 09:00 – 21:00",
+    vipContact: `${loc.city.toLowerCase().replace(/\s+/g, '')}.vip@meridianmoto.ae`,
+  }));
 
   const currentHub = regionalHubs.find((h) => h.id === activeHub) || regionalHubs[0];
-  const displayBrands = brands.length > 0 ? brands : DEFAULT_BRANDS;
-  const displayMotorcycles = motorcycles.length > 0 ? motorcycles : DEFAULT_MOTORCYCLES;
 
   const filteredMotorcycles = selectedMarque === "all"
-    ? displayMotorcycles
-    : displayMotorcycles.filter((m) => m.brand?.slug === selectedMarque);
+    ? motorcycles
+    : motorcycles.filter((m) => m.brand?.slug === selectedMarque);
 
   return (
     <div className="min-h-screen flex flex-col bg-moto-bg text-moto-text selection:bg-moto-copper selection:text-white">
       {/* Navigation Bar */}
       <Navbar />
 
-      <main className="flex-1">
-        {/* HERO SECTION — Cinematic Track Photography */}
+      <main id="main-content" className="flex-1">
+        {/* HERO SECTION */}
         <section className="relative min-h-[85vh] flex items-center justify-center overflow-hidden border-b border-moto-border">
-          {/* Hero Background Image Overlay */}
           <div className="absolute inset-0 z-0">
             <img
               src={STITCH_IMAGES.heroAttack}
@@ -237,16 +157,13 @@ export default function ConsumerHomepage() {
             <div className="absolute inset-0 bg-gradient-to-r from-moto-bg via-transparent to-moto-bg/80"></div>
           </div>
 
-          {/* Hero Content */}
           <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 text-center md:text-left">
             <div className="max-w-3xl space-y-6">
-              {/* Badge */}
               <div className="inline-flex items-center gap-2 px-3 py-1 bg-moto-copper/10 border border-moto-copper/30 rounded-full text-xs font-mono font-semibold tracking-widest text-moto-copper uppercase">
                 <span className="w-2 h-2 rounded-full bg-moto-copper animate-pulse"></span>
                 Dubai HQ • Middle East Flagship
               </div>
 
-              {/* Title */}
               <h1 className="font-barlow text-4xl sm:text-6xl md:text-7xl font-bold tracking-wider leading-none text-moto-text uppercase">
                 PURE DISPLACEMENT. <br />
                 <span className="text-transparent bg-clip-text bg-gradient-to-r from-moto-copper via-amber-200 to-moto-text">
@@ -254,12 +171,10 @@ export default function ConsumerHomepage() {
                 </span>
               </h1>
 
-              {/* Subtitle */}
               <p className="text-moto-muted text-base sm:text-lg md:text-xl font-normal leading-relaxed">
                 Luxury multi-brand motorcycle conglomerate representing four distinct marques across the GCC. Apex track weapons, Volt electric avionics, Nomad expedition touring, and Sovereign heritage cruisers.
               </p>
 
-              {/* Key Specs Pill Strip */}
               <div className="pt-2 flex flex-wrap items-center gap-4 text-xs font-mono">
                 <div className="bg-moto-surface/80 border border-moto-border px-4 py-2 rounded flex items-center gap-2">
                   <span className="text-moto-apex font-bold">214 HP</span>
@@ -279,26 +194,19 @@ export default function ConsumerHomepage() {
                 </div>
               </div>
 
-              {/* CTAs */}
               <div className="pt-4 flex flex-col sm:flex-row items-center gap-4">
                 <Link
-                  href="/models/apex-rs-900"
+                  href="#test-ride"
                   className="w-full sm:w-auto bg-moto-copper text-moto-bg font-barlow font-bold text-base tracking-wider uppercase px-8 py-4 rounded hover:bg-moto-copper/90 transition-all text-center shadow-xl shadow-moto-copper/20"
                 >
-                  Explore Apex RS 900 Flagship →
-                </Link>
-                <Link
-                  href="/models/apex-rs-900#reserve"
-                  className="w-full sm:w-auto bg-moto-surface border border-moto-border text-moto-text font-barlow font-bold text-base tracking-wider uppercase px-8 py-4 rounded hover:border-moto-copper transition-all text-center"
-                >
-                  Book Private Test Drive
+                  Book Private Test Drive →
                 </Link>
               </div>
             </div>
           </div>
         </section>
 
-        {/* MARQUES SECTION — The Four Marques (Swiper Carousel) */}
+        {/* MARQUES & MOTORCYCLES SECTION */}
         <section id="marques" className="py-20 bg-moto-bg border-b border-moto-border">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <RevealOnScroll>
@@ -312,7 +220,6 @@ export default function ConsumerHomepage() {
                   </h2>
                 </div>
 
-                {/* Filter Pills */}
                 <div className="flex items-center gap-2 overflow-x-auto pb-2 md:pb-0">
                   <button
                     type="button"
@@ -325,7 +232,7 @@ export default function ConsumerHomepage() {
                   >
                     All Marques
                   </button>
-                  {displayBrands.map((b) => (
+                  {brands.map((b) => (
                     <button
                       key={b.slug}
                       type="button"
@@ -343,237 +250,203 @@ export default function ConsumerHomepage() {
               </div>
             </RevealOnScroll>
 
-            {/* Models Carousel (Swiper) */}
-            <RevealOnScroll delay={200}>
-              <Swiper
-                modules={[Navigation, Pagination]}
-                spaceBetween={24}
-                slidesPerView={1}
-                navigation
-                pagination={{ clickable: true }}
-                breakpoints={{
-                  640: { slidesPerView: 2 },
-                  1024: { slidesPerView: 3 },
-                  1280: { slidesPerView: 4 },
-                }}
-                className="pb-14 pt-2"
-              >
-                {filteredMotorcycles.map((moto) => {
-                  const accent = getAccentClasses(moto.brand?.slug);
-                  return (
-                    <SwiperSlide key={moto.slug} className="h-auto">
-                      <div 
-                        className={`group bg-moto-surface border border-moto-border rounded-lg overflow-hidden flex flex-col justify-between h-full ${accent.border} transition-all duration-300 hover:shadow-2xl hover:-translate-y-1`}
-                      >
-                        <div className="p-6 relative">
-                          <div className={`w-full h-1 ${accent.strip} absolute top-0 left-0`}></div>
-                          <div className="flex items-center justify-between mb-4">
-                            <span className={`text-xs font-mono font-semibold uppercase ${accent.text} tracking-widest`}>
-                              {moto.brand?.name || "MARQUE"} • FEATURED
-                            </span>
-                            <span className={`text-xs ${accent.badge} border px-2 py-0.5 rounded font-mono font-bold`}>
-                              {moto.power_hp ? `${moto.power_hp} HP` : 'PERFORMANCE'}
-                            </span>
+            {/* Error or Empty State vs Swiper */}
+            {apiError ? (
+              <div role="alert" className="p-8 bg-moto-surface border border-moto-apex/30 rounded-lg text-center text-moto-apex font-mono text-sm">
+                Unable to load motorcycle catalog from API at this moment. Please verify backend service connectivity.
+              </div>
+            ) : isLoading ? (
+              <div role="status" className="p-12 text-center text-moto-muted font-mono text-xs uppercase tracking-wider">
+                Loading motorcycle fleet catalog...
+              </div>
+            ) : filteredMotorcycles.length === 0 ? (
+              <div role="status" className="p-8 bg-moto-surface border border-moto-border rounded-lg text-center text-moto-muted font-mono text-sm">
+                No motorcycle models currently available for this selection.
+              </div>
+            ) : (
+              <RevealOnScroll delay={200}>
+                <Swiper
+                  modules={[Navigation, Pagination]}
+                  spaceBetween={24}
+                  slidesPerView={1}
+                  navigation
+                  pagination={{ clickable: true }}
+                  breakpoints={{
+                    640: { slidesPerView: 2 },
+                    1024: { slidesPerView: 3 },
+                    1280: { slidesPerView: 4 },
+                  }}
+                  className="pb-14 pt-2"
+                >
+                  {filteredMotorcycles.map((moto) => {
+                    const accent = getAccentClasses(moto.brand?.slug);
+                    return (
+                      <SwiperSlide key={moto.slug} className="h-auto">
+                        <div 
+                          className={`group bg-moto-surface border border-moto-border rounded-lg overflow-hidden flex flex-col justify-between h-full ${accent.border} transition-all duration-300 hover:shadow-2xl hover:-translate-y-1`}
+                        >
+                          <div className="p-6 relative">
+                            <div className={`w-full h-1 ${accent.strip} absolute top-0 left-0`}></div>
+                            <div className="flex items-center justify-between mb-4">
+                              <span className={`text-xs font-mono font-semibold uppercase ${accent.text} tracking-widest`}>
+                                {moto.brand?.name || "MARQUE"} • FEATURED
+                              </span>
+                              <span className={`text-xs ${accent.badge} border px-2 py-0.5 rounded font-mono font-bold`}>
+                                {moto.power_hp ? `${moto.power_hp} HP` : 'PERFORMANCE'}
+                              </span>
+                            </div>
+
+                            <h3 className="text-2xl font-bold tracking-wider text-moto-text group-hover:text-moto-apex transition-colors">
+                              {moto.name}
+                            </h3>
+                            <p className="text-xs text-moto-muted mt-1 mb-4">
+                              {moto.summary || `${moto.engine_cc || 900}cc Engine • High Performance`}
+                            </p>
+
+                            <div className="my-4 aspect-[16/10] bg-moto-bg rounded overflow-hidden relative border border-moto-border">
+                              <img
+                                src={accent.image}
+                                alt={moto.name}
+                                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                              />
+                            </div>
+
+                            <div className="grid grid-cols-2 gap-2 text-xs font-mono pt-2 border-t border-moto-border/60">
+                              <div>
+                                <span className="text-moto-muted block">Power</span>
+                                <span className="text-moto-text font-bold">{moto.power_hp ? `${moto.power_hp} HP` : 'N/A'}</span>
+                              </div>
+                              <div>
+                                <span className="text-moto-muted block">Torque</span>
+                                <span className="text-moto-text font-bold">{moto.torque_nm ? `${moto.torque_nm} Nm` : 'N/A'}</span>
+                              </div>
+                            </div>
                           </div>
 
-                          <h3 className="text-2xl font-bold tracking-wider text-moto-text group-hover:text-moto-apex transition-colors">
-                            {moto.name}
-                          </h3>
-                          <p className="text-xs text-moto-muted mt-1 mb-4">
-                            {moto.summary || `${moto.engine_cc || 900}cc Engine • High Performance`}
-                          </p>
-
-                          <div className="my-4 aspect-[16/10] bg-moto-bg rounded overflow-hidden relative border border-moto-border">
-                            <img
-                              src={accent.image}
-                              alt={moto.name}
-                              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                            />
-                          </div>
-
-                          <div className="grid grid-cols-2 gap-2 text-xs font-mono pt-2 border-t border-moto-border/60">
-                            <div>
-                              <span className="text-moto-muted block">Power</span>
-                              <span className="text-moto-text font-bold">{moto.power_hp ? `${moto.power_hp} HP` : 'N/A'}</span>
+                          <div className="p-6 pt-0 mt-auto">
+                            <div className="flex items-center justify-between mb-4">
+                              <div>
+                                <span className="text-[10px] font-mono text-moto-muted uppercase block">Starting MSRP</span>
+                                <span className="text-lg font-bold font-mono text-moto-text">
+                                  ${moto.price_from ? moto.price_from.toLocaleString() : '115,000'} AED
+                                </span>
+                              </div>
                             </div>
-                            <div>
-                              <span className="text-moto-muted block">Weight</span>
-                              <span className="text-moto-text font-bold">{moto.dry_weight_kg ? `${moto.dry_weight_kg} kg` : 'N/A'}</span>
-                            </div>
-                            <div>
-                              <span className="text-moto-muted block">Price From</span>
-                              <span className={`${accent.text} font-bold`}>{moto.price_from ? `${moto.price_from.toLocaleString()} AED` : 'Contact'}</span>
-                            </div>
-                            <div>
-                              <span className="text-moto-muted block">Status</span>
-                              <span className="text-moto-text font-bold">Featured</span>
-                            </div>
+                            <Link
+                              href="#test-ride"
+                              className={`w-full block text-center py-3 rounded text-xs font-barlow font-bold uppercase tracking-wider transition-all shadow-md ${accent.btn}`}
+                            >
+                              Enquire / Book Test Ride
+                            </Link>
                           </div>
                         </div>
-
-                        <div className="p-6 pt-0">
-                          <Link
-                            href={`/models/${moto.slug}`}
-                            className={`block w-full text-center ${accent.btn} font-barlow font-bold text-xs uppercase tracking-wider py-3 rounded transition-colors`}
-                          >
-                            View {moto.name} Details →
-                          </Link>
-                        </div>
-                      </div>
-                    </SwiperSlide>
-                  );
-                })}
-              </Swiper>
-            </RevealOnScroll>
+                      </SwiperSlide>
+                    );
+                  })}
+                </Swiper>
+              </RevealOnScroll>
+            )}
           </div>
         </section>
 
-        {/* REGIONAL HUBS SECTION — Interactive GCC Network with Leaflet Map */}
-        <section id="regional-hubs" className="py-20 bg-moto-surface border-b border-moto-border">
+        {/* REGIONAL HUBS SECTION */}
+        <section id="regional-hubs" className="py-20 bg-moto-surface/40 border-b border-moto-border">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <RevealOnScroll>
-              <div className="text-center max-w-3xl mx-auto mb-12">
-                <div className="text-xs font-mono tracking-widest text-moto-copper uppercase mb-2">
-                  GCC Flagship Dealership Network
-                </div>
-                <h2 className="text-3xl sm:text-5xl font-bold tracking-wider text-moto-text uppercase">
-                  MIDDLE EAST REGIONAL HUBS
-                </h2>
-                <p className="text-moto-muted text-sm sm:text-base mt-3">
-                  Dedicated ateliers, track-side pit bays, and private concierge lounges across UAE, Saudi Arabia, and Qatar.
-                </p>
-              </div>
-            </RevealOnScroll>
-
-            {/* City Tabs */}
-            <div className="flex justify-center mb-8">
-              <div className="inline-flex p-1 bg-moto-bg border border-moto-border rounded-lg space-x-1 overflow-x-auto">
-                {regionalHubs.map((hub) => (
-                  <button
-                    key={hub.id}
-                    type="button"
-                    onClick={() => setActiveHub(hub.id)}
-                    className={`px-5 py-2.5 rounded font-barlow font-bold text-xs uppercase tracking-wider transition-all whitespace-nowrap ${
-                      activeHub === hub.id
-                        ? "bg-moto-copper text-moto-bg shadow-md"
-                        : "text-moto-muted hover:text-moto-text"
-                    }`}
-                  >
-                    {hub.city} ({hub.country.split(" ")[0]})
-                  </button>
-                ))}
-              </div>
+            <div className="text-center max-w-2xl mx-auto mb-16">
+              <span className="text-xs font-mono tracking-widest text-moto-copper uppercase mb-2 block">
+                GCC Presence & Ateliers
+              </span>
+              <h2 className="text-3xl sm:text-5xl font-bold tracking-wider text-moto-text uppercase">
+                REGIONAL FLAGSHIP HUBS
+              </h2>
+              <p className="text-moto-muted text-sm mt-3">
+                Experience bespoke test-ride commissioning and certified factory service across our premier GCC locations.
+              </p>
             </div>
 
-            {/* Active Hub Showcase & Interactive Leaflet Map */}
-            <RevealOnScroll delay={150}>
-              <div className="bg-moto-bg border border-moto-border rounded-xl p-8 md:p-10 grid grid-cols-1 md:grid-cols-2 gap-8 items-center shadow-2xl mb-12">
-                <div className="space-y-6">
-                  <div className="inline-block px-3 py-1 bg-moto-copper/10 border border-moto-copper/30 rounded text-xs font-mono text-moto-copper uppercase">
-                    {currentHub.country}
-                  </div>
-
-                  <h3 className="text-3xl sm:text-4xl font-bold tracking-wider text-moto-text uppercase">
-                    {currentHub.name}
-                  </h3>
-
-                  <div className="space-y-4 text-sm font-mono text-moto-muted">
-                    <div className="flex items-start gap-3">
-                      <span className="text-moto-copper text-base">📍</span>
-                      <div>
-                        <span className="text-moto-text font-semibold block">Address & Viewport</span>
-                        <span>{currentHub.location}</span>
-                      </div>
-                    </div>
-
-                    <div className="flex items-start gap-3">
-                      <span className="text-moto-copper text-base">📞</span>
-                      <div>
-                        <span className="text-moto-text font-semibold block">Direct Concierge Hotline</span>
-                        <a href={`tel:${currentHub.phone}`} className="text-moto-copper underline hover:text-white">
-                          {currentHub.phone}
-                        </a>
-                      </div>
-                    </div>
-
-                    <div className="flex items-start gap-3">
-                      <span className="text-moto-copper text-base">🕒</span>
-                      <div>
-                        <span className="text-moto-text font-semibold block">Operating Hours</span>
-                        <span>{currentHub.hours}</span>
-                      </div>
-                    </div>
-
-                    <div className="flex items-start gap-3">
-                      <span className="text-moto-copper text-base">✉️</span>
-                      <div>
-                        <span className="text-moto-text font-semibold block">VIP Dispatch Email</span>
-                        <a href={`mailto:${currentHub.vipContact}`} className="text-moto-copper underline hover:text-white">
-                          {currentHub.vipContact}
-                        </a>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="pt-2 flex flex-wrap gap-4">
-                    <Link
-                      href="/models/apex-rs-900#reserve"
-                      className="bg-moto-copper text-moto-bg font-barlow font-bold text-xs uppercase tracking-wider px-6 py-3 rounded hover:bg-moto-copper/90 transition-all"
-                    >
-                      Schedule Atelier Appointment →
-                    </Link>
-                  </div>
-                </div>
-
-                {/* Leaflet Interactive Map Component */}
-                <div>
-                  <DynamicLocationsMap locations={locations.length > 0 ? locations : []} />
-                </div>
+            {regionalHubs.length === 0 ? (
+              <div role="status" className="p-8 bg-moto-surface border border-moto-border rounded-lg text-center text-moto-muted font-mono text-sm">
+                Regional hubs currently synchronizing with inventory network.
               </div>
-            </RevealOnScroll>
-          </div>
-        </section>
-
-        {/* TEST-RIDE FORM SECTION (TanStack Query + Zod + RHF) */}
-        <section id="reserve" className="py-20 bg-moto-bg border-b border-moto-border">
-          <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-            <RevealOnScroll>
-              <TestRideForm motorcycles={displayMotorcycles} />
-            </RevealOnScroll>
-          </div>
-        </section>
-
-        {/* CONCIERGE EXPERIENCE & RECRUITMENT ASSESSMENT BANNER */}
-        <section id="concierge" className="py-20 bg-moto-bg">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-            <RevealOnScroll>
-              <div className="bg-moto-surface border border-moto-border rounded-xl p-8 md:p-12 relative overflow-hidden">
-                <div className="max-w-2xl mx-auto space-y-4 relative z-10">
-                  <span className="text-xs font-mono uppercase tracking-widest text-moto-copper px-3 py-1 bg-moto-copper/10 rounded-full border border-moto-copper/30 inline-block">
-                    EXPERIENCE CONCIERGE
-                  </span>
-                  <h3 className="text-3xl font-bold tracking-wider text-moto-text uppercase">
-                    TRACK DAYS & BESPOKE DELIVERY
-                  </h3>
-                  <p className="text-moto-muted text-sm leading-relaxed">
-                    Every Meridian vehicle includes private circuit telemetry access at Yas Marina Circuit and Dubai Autodrome, along with white-glove enclosed transporter delivery.
-                  </p>
-                  <div className="pt-4 flex justify-center gap-4">
-                    <Link
-                      href="/cms/login"
-                      className="bg-moto-copper/20 text-moto-copper border border-moto-copper/40 hover:bg-moto-copper hover:text-moto-bg font-barlow font-bold text-xs uppercase tracking-wider px-6 py-3 rounded transition-all"
+            ) : (
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <div className="space-y-4">
+                  {regionalHubs.map((hub) => (
+                    <button
+                      key={hub.id}
+                      type="button"
+                      onClick={() => setActiveHub(hub.id)}
+                      className={`w-full text-left p-6 rounded-lg border transition-all ${
+                        activeHub === hub.id
+                          ? "bg-moto-surface border-moto-copper shadow-xl shadow-moto-copper/5"
+                          : "bg-moto-surface/40 border-moto-border hover:border-moto-muted"
+                      }`}
                     >
-                      Enterprise CMS Management Console →
+                      <div className="flex items-center justify-between mb-2">
+                        <span className="text-xs font-mono text-moto-copper uppercase tracking-widest">{hub.country}</span>
+                        {activeHub === hub.id && <span className="w-2 h-2 rounded-full bg-moto-copper animate-ping"></span>}
+                      </div>
+                      <h3 className="font-barlow text-xl font-bold tracking-wider uppercase text-moto-text">{hub.city} Atelier</h3>
+                      <p className="text-xs text-moto-muted mt-1">{hub.name}</p>
+                    </button>
+                  ))}
+                </div>
+
+                <div className="lg:col-span-2 bg-moto-surface border border-moto-border rounded-lg p-8 flex flex-col justify-between">
+                  <div className="space-y-6">
+                    <div className="flex items-center justify-between border-b border-moto-border pb-4">
+                      <div>
+                        <span className="text-xs font-mono text-moto-copper uppercase tracking-wider">{currentHub.country}</span>
+                        <h3 className="font-barlow text-2xl font-bold uppercase tracking-wider text-moto-text mt-1">{currentHub.name}</h3>
+                      </div>
+                      <span className="px-3 py-1 bg-moto-copper/10 border border-moto-copper/30 text-moto-copper text-xs font-mono rounded">
+                        Active Atelier
+                      </span>
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 text-sm">
+                      <div className="space-y-1">
+                        <span className="text-xs font-mono text-moto-muted block uppercase">Location Address</span>
+                        <p className="text-moto-text font-medium">{currentHub.location}</p>
+                      </div>
+                      <div className="space-y-1">
+                        <span className="text-xs font-mono text-moto-muted block uppercase">Operating Hours</span>
+                        <p className="text-moto-text font-medium">{currentHub.hours}</p>
+                      </div>
+                      <div className="space-y-1">
+                        <span className="text-xs font-mono text-moto-muted block uppercase">Direct Hotline</span>
+                        <p className="text-moto-text font-mono font-bold text-moto-copper">{currentHub.phone}</p>
+                      </div>
+                      <div className="space-y-1">
+                        <span className="text-xs font-mono text-moto-muted block uppercase">VIP Concierge Email</span>
+                        <p className="text-moto-text font-mono text-xs">{currentHub.vipContact}</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="pt-8 mt-8 border-t border-moto-border flex flex-col sm:flex-row items-center justify-between gap-4">
+                    <span className="text-xs font-mono text-moto-muted">GPS: 25.1972° N, 55.2744° E (GCC Hub Grid)</span>
+                    <Link
+                      href="#test-ride"
+                      className="bg-moto-copper text-moto-bg font-barlow font-bold text-xs tracking-wider uppercase px-6 py-3 rounded hover:bg-moto-copper/90 transition-all"
+                    >
+                      Book Appointment at {currentHub.city}
                     </Link>
                   </div>
                 </div>
               </div>
-            </RevealOnScroll>
+            )}
+          </div>
+        </section>
+
+        {/* TEST RIDE SECTION */}
+        <section id="test-ride" className="py-24 bg-moto-bg relative overflow-hidden">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+            <TestRideForm motorcycles={motorcycles} />
           </div>
         </section>
       </main>
 
-      {/* Footer */}
       <Footer />
     </div>
   );

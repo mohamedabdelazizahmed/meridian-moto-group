@@ -33,13 +33,10 @@ export default function Navbar() {
         </Link>
 
         {/* Desktop Navigation Links */}
-        <nav className="hidden lg:flex items-center space-x-8 text-xs font-semibold tracking-[0.1em] uppercase">
+        <nav aria-label="Main Navigation" className="hidden lg:flex items-center space-x-8 text-xs font-semibold tracking-[0.1em] uppercase">
           <Link href="/#marques" className="text-moto-muted hover:text-moto-text transition-colors flex items-center gap-1.5">
             <span className="w-1.5 h-1.5 rounded-full bg-moto-apex"></span>
             Marques
-          </Link>
-          <Link href={Routes.ModelDetail("apex-rs-900")} className="text-moto-apex hover:text-white transition-colors">
-            Apex RS 900
           </Link>
           <Link href="/#regional-hubs" className="text-moto-muted hover:text-moto-text transition-colors">
             GCC Regional Hubs
@@ -55,7 +52,7 @@ export default function Navbar() {
         {/* Action CTAs */}
         <div className="hidden lg:flex items-center space-x-4">
           <Link
-            href={`${Routes.ModelDetail("apex-rs-900")}#reserve`}
+            href="/#test-ride"
             className="bg-moto-copper text-moto-bg font-barlow font-bold text-sm tracking-[0.08em] uppercase px-5 py-2.5 rounded hover:bg-moto-copper/90 transition-all shadow-lg shadow-moto-copper/10 active:scale-95"
           >
             Book Test Ride
@@ -93,14 +90,6 @@ export default function Navbar() {
               Marques (Apex • Volt • Nomad • Sovereign)
             </Link>
             <Link
-              href={Routes.ModelDetail("apex-rs-900")}
-              onClick={() => setMobileMenuOpen(false)}
-              className="px-3 py-2 text-moto-apex hover:bg-moto-bg/50 rounded flex items-center justify-between"
-            >
-              <span>Apex RS 900 Flagship</span>
-              <span className="text-xs bg-moto-apex/20 text-moto-apex px-2 py-0.5 rounded">214 HP</span>
-            </Link>
-            <Link
               href="/#regional-hubs"
               onClick={() => setMobileMenuOpen(false)}
               className="px-3 py-2 text-moto-muted hover:text-moto-text hover:bg-moto-bg/50 rounded"
@@ -115,7 +104,7 @@ export default function Navbar() {
               Experience Concierge
             </Link>
             <Link
-              href={`${Routes.ModelDetail("apex-rs-900")}#reserve`}
+              href="/#test-ride"
               onClick={() => setMobileMenuOpen(false)}
               className="bg-moto-copper text-moto-bg text-center py-3 rounded font-barlow font-bold uppercase"
             >

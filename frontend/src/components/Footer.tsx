@@ -30,22 +30,22 @@ export default function Footer() {
             </h4>
             <ul className="space-y-2.5 text-sm">
               <li>
-                <Link href="/models/apex-rs-900" className="hover:text-moto-apex transition-colors flex items-center gap-2">
-                  <span className="text-moto-apex">✦</span> Apex RS 900 (Track)
-                </Link>
+                <span className="text-moto-apex flex items-center gap-2">
+                  <span>✦</span> Apex RS 900 (Track)
+                </span>
               </li>
               <li>
-                <span className="text-moto-muted hover:text-moto-volt transition-colors cursor-pointer flex items-center gap-2">
+                <span className="text-moto-muted flex items-center gap-2">
                   <span className="text-moto-volt">✦</span> Volt Pulse RS (Electric)
                 </span>
               </li>
               <li>
-                <span className="text-moto-muted hover:text-moto-nomad transition-colors cursor-pointer flex items-center gap-2">
+                <span className="text-moto-muted flex items-center gap-2">
                   <span className="text-moto-nomad">✦</span> Nomad Horizon 1250 (Adventure)
                 </span>
               </li>
               <li>
-                <span className="text-moto-muted hover:text-moto-sovereign transition-colors cursor-pointer flex items-center gap-2">
+                <span className="text-moto-muted flex items-center gap-2">
                   <span className="text-moto-sovereign">✦</span> Sovereign Wraith 1800 (Heritage)
                 </span>
               </li>
