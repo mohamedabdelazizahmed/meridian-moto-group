@@ -1,0 +1,11 @@
+# Meridian Moto Group - Root Docker Compose
+# This file orchestrates the entire monorepo stack using Docker Compose v2 include support.
+# It includes the Laravel backend stack (laravel.test, mysql, phpmyadmin) and the Next.js frontend development service.
+#
+# Usage:
+#   docker compose up -d
+#   docker compose down
+
+include:
+  - backend/compose.yaml
+  - frontend/docker-compose.dev.yml
