@@ -48,7 +48,9 @@ async function handleProxy(request: NextRequest, context: RouteContext) {
   const upstreamHeaders = new Headers();
   const contentType = request.headers.get('content-type');
   if (contentType) {
-    upstreamHeaders.set('Content-Type', contentType);
+    if (!contentType.includes('multipart/form-data')) {
+      upstreamHeaders.set('Content-Type', contentType);
+    }
   }
   const accept = request.headers.get('accept');
   if (accept) {

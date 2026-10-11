@@ -1,45 +1,43 @@
 import { getApiBaseUrl } from "@/lib/env";
 import { HttpStatus } from "@/lib/http";
+import { Result, ok, err } from "@/lib/result";
 import type { Brand, Motorcycle, LocationItem, Promotion } from "@/types/api";
 
 export type { Brand, Motorcycle, LocationItem, Promotion };
 
 const API_BASE_URL = getApiBaseUrl();
 
-async function fetchApi<T>(endpoint: string): Promise<T | null> {
+async function fetchApi<T>(endpoint: string): Promise<Result<T>> {
   try {
     const res = await fetch(`${API_BASE_URL}${endpoint}`, {
       next: { revalidate: 60 },
     });
     if (!res.ok) {
-      if (res.status !== HttpStatus.NOT_FOUND) {
-        // API error handled gracefully by caller error states
+      if (res.status === HttpStatus.NOT_FOUND) {
+        return ok([] as unknown as T);
       }
-      return null;
+      return err(`API request failed with status ${res.status}`);
     }
     const json = await res.json();
-    return json.data ?? json;
-  } catch {
-    return null;
+    return ok(json.data ?? json);
+  } catch (e: unknown) {
+    const message = e instanceof Error ? e.message : "Network error";
+    return err(message);
   }
 }
 
-export async function getBrands(): Promise<Brand[]> {
-  const data = await fetchApi<Brand[]>("/brands");
-  return data || [];
+export async function getBrands(): Promise<Result<Brand[]>> {
+  return fetchApi<Brand[]>("/brands");
 }
 
-export async function getFeaturedMotorcycles(): Promise<Motorcycle[]> {
-  const data = await fetchApi<Motorcycle[]>("/motorcycles?featured=1");
-  return data || [];
+export async function getFeaturedMotorcycles(): Promise<Result<Motorcycle[]>> {
+  return fetchApi<Motorcycle[]>("/motorcycles?featured=1");
 }
 
-export async function getLocations(): Promise<LocationItem[]> {
-  const data = await fetchApi<LocationItem[]>("/locations");
-  return data || [];
+export async function getLocations(): Promise<Result<LocationItem[]>> {
+  return fetchApi<LocationItem[]>("/locations");
 }
 
-export async function getPromotions(): Promise<Promotion[]> {
-  const data = await fetchApi<Promotion[]>("/promotions");
-  return data || [];
+export async function getPromotions(): Promise<Result<Promotion[]>> {
+  return fetchApi<Promotion[]>("/promotions");
 }

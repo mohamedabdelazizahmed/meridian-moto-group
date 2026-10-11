@@ -6,7 +6,7 @@ interface CmsHeaderProps {
   title: string;
   subtitle?: string;
   role: "data_entry" | "admin";
-  userName: string;
+  userName?: string;
   assignedBrands?: string[];
   actionButton?: React.ReactNode;
 }
@@ -15,7 +15,7 @@ export default function CmsHeader({
   title,
   subtitle,
   role,
-  userName,
+  userName = role === "admin" ? "Karim Al-Hassan" : "Tariq Al-Mansoor",
   assignedBrands = ["Apex", "Nomad"],
   actionButton,
 }: CmsHeaderProps) {

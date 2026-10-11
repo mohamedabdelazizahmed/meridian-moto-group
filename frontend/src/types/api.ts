@@ -11,6 +11,8 @@ export interface Brand {
   description?: string;
   accent_color?: string;
   logo_url?: string;
+  hero_image_url?: string;
+  is_active?: boolean;
 }
 
 export interface Motorcycle {
@@ -47,10 +49,14 @@ export interface LocationItem {
 export interface Promotion {
   id?: number;
   title: string;
-  description: string;
+  description?: string;
   image_url?: string;
   starts_at?: string;
   ends_at?: string;
+  code?: string;
+  discount_percentage?: number;
+  is_published?: boolean;
+  brand?: Brand;
 }
 
 export type AuthUser = {
