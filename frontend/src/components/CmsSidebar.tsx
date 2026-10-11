@@ -13,10 +13,8 @@ interface CmsSidebarProps {
 export default function CmsSidebar({ currentRole = "data_entry", onToggleRole }: CmsSidebarProps) {
   const pathname = usePathname();
 
-  const isModelsActive = pathname === "/cms/models" || pathname === "/cms";
   const isBrandsActive = pathname === "/cms/brands";
   const isPromotionsActive = pathname === "/cms/promotions";
-  const isUsersActive = pathname === "/cms/admin/users";
 
   return (
     <aside className="w-64 bg-moto-surface border-r border-moto-border flex flex-col justify-between shrink-0 min-h-screen">
@@ -77,25 +75,6 @@ export default function CmsSidebar({ currentRole = "data_entry", onToggleRole }:
           </div>
 
           <Link
-            href="/cms/models"
-            className={`flex items-center justify-between px-3 py-2.5 rounded transition-colors ${
-              isModelsActive
-                ? "bg-moto-copper/15 text-moto-copper border border-moto-copper/30 font-semibold"
-                : "text-moto-muted hover:text-moto-text hover:bg-moto-bg/50"
-            }`}
-          >
-            <div className="flex items-center gap-2.5">
-              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
-              </svg>
-              <span>Models Catalog</span>
-            </div>
-            <span className="text-xs bg-moto-bg px-2 py-0.5 rounded border border-moto-border font-mono text-moto-muted">
-              4
-            </span>
-          </Link>
-
-          <Link
             href="/cms/brands"
             className={`flex items-center justify-between px-3 py-2.5 rounded transition-colors ${
               isBrandsActive
@@ -126,40 +105,6 @@ export default function CmsSidebar({ currentRole = "data_entry", onToggleRole }:
               <span>Promotions</span>
             </div>
           </Link>
-
-          {/* RBAC Section for Admin */}
-          <div className="pt-4 px-3 py-2 text-[11px] font-mono tracking-widest text-moto-muted uppercase flex items-center justify-between">
-            <span>Administration</span>
-            {currentRole === "data_entry" && (
-              <span className="text-[10px] text-moto-apex uppercase font-normal">(Restricted)</span>
-            )}
-          </div>
-
-          {currentRole === "admin" ? (
-            <Link
-              href="/cms/admin/users"
-              className={`flex items-center justify-between px-3 py-2.5 rounded transition-colors ${
-                isUsersActive
-                  ? "bg-moto-copper/15 text-moto-copper border border-moto-copper/30 font-semibold"
-                  : "text-moto-muted hover:text-moto-text hover:bg-moto-bg/50"
-              }`}
-            >
-              <div className="flex items-center gap-2.5">
-                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
-                </svg>
-                <span>Users Clearance</span>
-              </div>
-              <span className="text-[10px] font-bold bg-moto-copper text-moto-bg px-1.5 py-0.5 rounded uppercase">
-                ADMIN
-              </span>
-            </Link>
-          ) : (
-            /* Explicitly Hidden or Disabled in Data Entry mode per RBAC rule */
-            <div className="px-3 py-2 text-moto-muted/30 text-xs italic bg-moto-bg/30 rounded border border-moto-border/30">
-              🔒 Users Clearance menu hidden for Data Entry users
-            </div>
-          )}
         </nav>
       </div>
 
