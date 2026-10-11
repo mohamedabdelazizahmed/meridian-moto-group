@@ -13,6 +13,7 @@ interface CmsSidebarProps {
 export default function CmsSidebar({ currentRole = "data_entry", onToggleRole }: CmsSidebarProps) {
   const pathname = usePathname();
 
+  const isModelsActive = pathname === "/cms/models" || pathname === "/cms";
   const isBrandsActive = pathname === "/cms/brands";
   const isPromotionsActive = pathname === "/cms/promotions";
 
@@ -73,6 +74,22 @@ export default function CmsSidebar({ currentRole = "data_entry", onToggleRole }:
           <div className="px-3 py-2 text-[11px] font-mono tracking-widest text-moto-muted uppercase">
             Catalog Management
           </div>
+
+          <Link
+            href="/cms/models"
+            className={`flex items-center justify-between px-3 py-2.5 rounded transition-colors ${
+              isModelsActive
+                ? "bg-moto-copper/15 text-moto-copper border border-moto-copper/30 font-semibold"
+                : "text-moto-muted hover:text-moto-text hover:bg-moto-bg/50"
+            }`}
+          >
+            <div className="flex items-center gap-2.5">
+              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+              </svg>
+              <span>Models Catalog</span>
+            </div>
+          </Link>
 
           <Link
             href="/cms/brands"

@@ -27,6 +27,7 @@ export interface Motorcycle {
   summary?: string;
   image_url?: string;
   is_featured?: boolean;
+  is_published?: boolean;
   brand?: Brand;
 }
 
