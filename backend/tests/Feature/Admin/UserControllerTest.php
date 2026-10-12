@@ -107,3 +107,26 @@ test('delete user revokes tokens and deletes record', function () {
     $response->assertStatus(Response::HTTP_NO_CONTENT);
     expect(User::find($target->id))->toBeNull();
 });
+
+test('admin can filter users by role and search', function () {
+    $admin = User::factory()->withRole(RoleName::Admin)->create();
+    User::factory()->withRole(RoleName::DataEntry)->create(['name' => 'Specific Entry']);
+
+    $response = $this->actingAs($admin)->getJson('/api/v1/admin/users?role=data_entry&search=Specific');
+
+    $response->assertStatus(Response::HTTP_OK)
+        ->assertJsonCount(1, 'data')
+        ->assertJsonPath('data.0.name', 'Specific Entry');
+});
+
+test('admin cannot change their own role', function () {
+    $admin = User::factory()->withRole(RoleName::Admin)->create();
+
+    $response = $this->actingAs($admin)->putJson("/api/v1/admin/users/{$admin->id}", [
+        'name' => $admin->name,
+        'email' => $admin->email,
+        'role' => 'data_entry',
+    ]);
+
+    $response->assertStatus(Response::HTTP_UNPROCESSABLE_ENTITY);
+});

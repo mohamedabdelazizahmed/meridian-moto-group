@@ -6,6 +6,7 @@ namespace App\Services;
 
 use App\DataTransferObjects\ListFilters;
 use App\DataTransferObjects\UserData;
+use App\Exceptions\CannotChangeOwnRoleException;
 use App\Exceptions\CannotDeleteSelfException;
 use App\Models\User;
 use App\Repositories\Contracts\AdminUserRepositoryInterface;
@@ -43,9 +44,15 @@ final class UserService
         });
     }
 
-    public function update(User $user, UserData $dto): User
+    public function update(User $user, UserData $dto, ?User $actor = null): User
     {
-        return DB::transaction(function () use ($user, $dto) {
+        return DB::transaction(function () use ($user, $dto, $actor) {
+            $currentRole = $user->roles->first()?->name;
+
+            if ($actor && $user->id === $actor->id && $currentRole !== $dto->role->value) {
+                throw new CannotChangeOwnRoleException('Admins cannot change their own role.');
+            }
+
             $data = [
                 'name' => $dto->name,
                 'email' => $dto->email,
@@ -55,7 +62,6 @@ final class UserService
                 $data['password'] = Hash::make($dto->password);
             }
 
-            $currentRole = $user->roles->first()?->name;
             $currentBrandIds = $user->brands->pluck('id')->sort()->values()->toArray();
             $newBrandIds = collect($dto->brandIds)->sort()->values()->toArray();
 

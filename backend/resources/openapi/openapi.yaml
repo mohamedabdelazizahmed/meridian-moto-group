@@ -1042,6 +1042,7 @@ paths:
         - $ref: '#/components/parameters/page'
         - $ref: '#/components/parameters/per_page'
         - $ref: '#/components/parameters/search'
+        - $ref: '#/components/parameters/role'
       responses:
         '200':
           description: Paginated list of users
@@ -1284,6 +1285,15 @@ components:
       schema:
         type: string
         example: Apex
+    role:
+      name: role
+      in: query
+      description: Filter by role (admin or data_entry)
+      required: false
+      schema:
+        type: string
+        enum: [admin, data_entry]
+        example: data_entry
     brand_id:
       name: brand_id
       in: query
@@ -1746,6 +1756,10 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/Brand'
+        created_at:
+          type: string
+          format: date-time
+          example: "2026-10-08T08:00:00.000000Z"
     AuthResponse:
       type: object
       properties:

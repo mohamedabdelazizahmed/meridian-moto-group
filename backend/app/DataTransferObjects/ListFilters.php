@@ -12,6 +12,7 @@ final readonly class ListFilters
         public ?string $search,
         public ?int $brandId,
         public ?string $status,
+        public ?string $role,
         public int $perPage,
     ) {}
 
@@ -21,6 +22,7 @@ final readonly class ListFilters
             search: $request->string('search')->toString() ?: null,
             brandId: $request->filled('brand_id') ? (int) $request->input('brand_id') : null,
             status: $request->string('status')->toString() ?: null,
+            role: $request->string('role')->toString() ?: null,
             perPage: (int) $request->input('per_page', 15),
         );
     }

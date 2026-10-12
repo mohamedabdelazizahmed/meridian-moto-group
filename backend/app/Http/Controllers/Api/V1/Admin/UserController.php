@@ -7,9 +7,9 @@ namespace App\Http\Controllers\Api\V1\Admin;
 use App\DataTransferObjects\ListFilters;
 use App\DataTransferObjects\UserData;
 use App\Http\Controllers\Controller;
-use App\Http\Requests\Admin\ListRequest;
 use App\Http\Requests\Admin\StoreUserRequest;
 use App\Http\Requests\Admin\UpdateUserRequest;
+use App\Http\Requests\Admin\UserListRequest;
 use App\Http\Resources\UserResource;
 use App\Models\User;
 use App\Services\UserService;
@@ -25,7 +25,7 @@ final class UserController extends Controller
         private readonly UserService $userService,
     ) {}
 
-    public function index(ListRequest $request): AnonymousResourceCollection
+    public function index(UserListRequest $request): AnonymousResourceCollection
     {
         Gate::authorize('viewAny', User::class);
 
@@ -59,7 +59,7 @@ final class UserController extends Controller
         Gate::authorize('update', $user);
 
         $dto = UserData::fromRequest($request);
-        $updated = $this->userService->update($user, $dto);
+        $updated = $this->userService->update($user, $dto, $request->user());
 
         return new UserResource($updated);
     }

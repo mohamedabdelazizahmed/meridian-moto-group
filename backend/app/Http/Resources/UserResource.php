@@ -27,6 +27,7 @@ final class UserResource extends JsonResource
                 $this->resource->relationLoaded('brands'),
                 fn () => BrandResource::collection($this->resource->brands)
             ),
+            'created_at' => $this->resource->created_at?->toIso8601String(),
         ];
     }
 }

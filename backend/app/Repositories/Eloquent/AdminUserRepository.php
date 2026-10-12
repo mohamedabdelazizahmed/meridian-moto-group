@@ -24,6 +24,10 @@ final class AdminUserRepository implements AdminUserRepositoryInterface
                 ->orWhere('email', 'like', "%{$filters->search}%"));
         }
 
+        if ($filters->role) {
+            $query->whereHas('roles', fn ($q) => $q->where('name', $filters->role));
+        }
+
         if ($filters->brandId) {
             $query->whereHas('brands', fn ($q) => $q->where('brands.id', $filters->brandId));
         }

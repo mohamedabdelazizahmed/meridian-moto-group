@@ -1386,6 +1386,8 @@ export interface paths {
                     per_page?: components["parameters"]["per_page"];
                     /** @description Search query string */
                     search?: components["parameters"]["search"];
+                    /** @description Filter by role (admin or data_entry) */
+                    role?: components["parameters"]["role"];
                 };
                 header?: never;
                 path?: never;
@@ -1911,6 +1913,11 @@ export interface components {
             /** @example admin */
             role?: string | null;
             brands?: components["schemas"]["Brand"][];
+            /**
+             * Format: date-time
+             * @example 2026-10-08T08:00:00.000000Z
+             */
+            created_at?: string;
         };
         AuthResponse: {
             /** @example 1|laravel_sanctum_token_example... */
@@ -1989,6 +1996,8 @@ export interface components {
         per_page: number;
         /** @description Search query string */
         search: string;
+        /** @description Filter by role (admin or data_entry) */
+        role: "admin" | "data_entry";
         /** @description Filter by brand ID */
         brand_id: number;
         /** @description Filter by status (published/active or draft/inactive) */
