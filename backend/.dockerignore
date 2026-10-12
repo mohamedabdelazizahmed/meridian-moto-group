@@ -2,6 +2,7 @@ vendor
 node_modules
 .env
 .env.local
+public/storage
 storage/*.sqlite
 storage/logs/*.log
 storage/framework/cache/*
