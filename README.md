@@ -111,9 +111,8 @@ The database seeder provisions three test accounts with password `Meridian @2026
 
 ## 8. CMS Capabilities by Role
 
-- **Admin**: Full CRUD access across all brands (Volt, Nomad, Apex, Sovereign), models, promotions, and brand management.
-- **Data Entry**: Limited CRUD access to motorcycles and promotions restricted strictly to their assigned brands. Cannot manage brands or users.
-- *Note*: User management is fully supported via the REST API (documented in Swagger/Postman) but has no dedicated UI screen in this submission.
+- **Admin**: Full CRUD access across all brands (Volt, Nomad, Apex, Sovereign), models, promotions, brand management, and User Management (`/cms/users`) with role filtering, brand scope assignment, and self-protection guard rails.
+- **Data Entry**: Limited CRUD access to motorcycles and promotions restricted strictly to their assigned brands. Cannot access user management or brand management.
 
 ## 9. API Documentation
 
