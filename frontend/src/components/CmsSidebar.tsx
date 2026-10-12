@@ -122,6 +122,29 @@ export default function CmsSidebar({ currentRole, role, onToggleRole, onRoleChan
               <span>Promotions</span>
             </div>
           </Link>
+
+          {activeRole === "admin" && (
+            <>
+              <div className="px-3 pt-4 pb-2 text-[11px] font-mono tracking-widest text-moto-muted uppercase">
+                System Management
+              </div>
+              <Link
+                href="/cms/users"
+                className={`flex items-center justify-between px-3 py-2.5 rounded transition-colors ${
+                  pathname === "/cms/users"
+                    ? "bg-moto-copper/15 text-moto-copper border border-moto-copper/30 font-semibold"
+                    : "text-moto-muted hover:text-moto-text hover:bg-moto-bg/50"
+                }`}
+              >
+                <div className="flex items-center gap-2.5">
+                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+                  </svg>
+                  <span>User Management</span>
+                </div>
+              </Link>
+            </>
+          )}
         </nav>
       </div>
 

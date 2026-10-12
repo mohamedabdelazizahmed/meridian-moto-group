@@ -68,5 +68,6 @@ export type AuthUser = {
 };
 
 export type RoleName = "admin" | "data_entry";
+export type User = Schemas["User"];
 export type ValidationError = Schemas["ValidationError"];
 export type AuthResponse = Schemas["AuthResponse"];

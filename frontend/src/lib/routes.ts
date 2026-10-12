@@ -4,7 +4,7 @@ export const Routes = {
   CmsModels: "/cms/models",
   CmsPromotions: "/cms/promotions",
   CmsBrands: "/cms/brands",
-  CmsUsers: "/cms/admin/users",
+  CmsUsers: "/cms/users",
   ApiAuthLogin: "/api/auth/login",
   ApiAuthLogout: "/api/auth/logout",
   ApiAuthMe: "/api/auth/me",
