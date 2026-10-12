@@ -1,0 +1,14 @@
+vendor
+node_modules
+.env
+.env.local
+storage/*.sqlite
+storage/logs/*.log
+storage/framework/cache/*
+storage/framework/sessions/*
+storage/framework/views/*
+tests/Output
+.git
+.gitignore
+Dockerfile
+compose.yaml

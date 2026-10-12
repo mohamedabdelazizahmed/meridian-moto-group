@@ -1,13 +1,95 @@
-# Meridian Moto Group - Root Docker Compose
-# This file orchestrates the entire monorepo stack using Docker Compose v2 include support.
-# It includes the Laravel backend stack (laravel.test, mysql, phpmyadmin) and the Next.js frontend development service.
-#
-# Usage:
-#   docker compose up -d
-#   docker compose down
+# ==============================================================================
+# Meridian Moto Group - Production Docker Compose Stack
+# Starts MySQL, Laravel API backend, Next.js frontend, and phpMyAdmin.
+# ==============================================================================
+name: meridian-moto-group
 
-name: backend
+services:
+  mysql:
+    image: mysql:8.4
+    container_name: meridian-mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: meridian
+      MYSQL_USER: ${DB_USERNAME:-meridian}
+      MYSQL_PASSWORD: ${DB_PASSWORD:-secret}
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:-root_secret}
+    volumes:
+      - mysql-data:/var/lib/mysql
+    ports:
+      - "${DB_FORWARD_PORT:-3307}:3306"
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-p${DB_PASSWORD:-secret}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 15s
 
-include:
-  - backend/compose.yaml
-  - frontend/docker-compose.dev.yml
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: meridian-backend
+    restart: unless-stopped
+    depends_on:
+      mysql:
+        condition: service_healthy
+    environment:
+      APP_NAME: "Meridian Moto Group"
+      APP_ENV: production
+      APP_DEBUG: false
+      APP_URL: http://localhost:8000
+      FRONTEND_URL: http://localhost:3000
+      DB_CONNECTION: mysql
+      DB_HOST: mysql
+      DB_PORT: 3306
+      DB_DATABASE: meridian
+      DB_USERNAME: ${DB_USERNAME:-meridian}
+      DB_PASSWORD: ${DB_PASSWORD:-secret}
+      SEED_USER_PASSWORD: ${SEED_USER_PASSWORD:-Meridian @2026}
+      SEED_ON_START: "true"
+    ports:
+      - "${APP_PORT:-8000}:8000"
+    volumes:
+      - backend-storage:/var/www/html/storage/app/public
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      args:
+        NEXT_PUBLIC_API_URL: http://localhost:8000/api/v1
+        SITE_URL: http://localhost:3000
+    container_name: meridian-frontend
+    restart: unless-stopped
+    depends_on:
+      backend:
+        condition: service_healthy
+    environment:
+      NODE_ENV: production
+      API_INTERNAL_URL: http://backend:8000/api/v1
+      NEXT_PUBLIC_API_URL: http://localhost:8000/api/v1
+      SITE_URL: http://localhost:3000
+    ports:
+      - "${WEB_PORT:-3000}:3000"
+
+  phpmyadmin:
+    image: phpmyadmin:5
+    container_name: meridian-phpmyadmin
+    restart: unless-stopped
+    depends_on:
+      mysql:
+        condition: service_healthy
+    environment:
+      PMA_HOST: mysql
+      PMA_USER: ${DB_USERNAME:-meridian}
+      PMA_PASSWORD: ${DB_PASSWORD:-secret}
+      UPLOAD_LIMIT: 64M
+    ports:
+      - "${PMA_PORT:-8080}:80"
+
+volumes:
+  mysql-data:
+    driver: local
+  backend-storage:
+    driver: local

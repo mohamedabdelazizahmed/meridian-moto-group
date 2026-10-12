@@ -1,0 +1,9 @@
+node_modules
+.next
+vendor
+.env
+.env.local
+.git
+.gitignore
+storage
+docs
