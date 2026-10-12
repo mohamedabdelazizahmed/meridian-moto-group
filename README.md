@@ -9,7 +9,7 @@
 Meridian Moto Group is an enterprise-grade web application and REST API platform for an exclusive high-performance motorcycle manufacturer featuring four distinct marques: **Volt** (Electric Performance), **Nomad** (Adventure & Touring), **Apex** (Track & Hyper-Sport), and **Sovereign** (Ultra-Luxury Cruisers). 
 
 The platform consists of:
-- **Backend API (`/backend`)**: Robust Laravel REST API featuring strict form request validation, service-layer business logic, repository pattern abstraction, form request validation, Eloquent policies, API Resources, Sanctum authentication, Spatie permissions, and comprehensive automated test suites (Pest / PHPUnit).
+- **Backend API (`/backend`)**: Robust Laravel REST API featuring strict form request validation, service-layer business logic, repository pattern abstraction, Eloquent policies, API Resources, Sanctum authentication, Spatie permissions, and comprehensive automated test suites (Pest / PHPUnit).
 - **Frontend App (`/frontend`)**: Modern Next.js (App Router, TypeScript, Tailwind CSS) web application delivering an immersive public showroom, interactive test ride booking, regional dealer hubs map (Leaflet), and a fully secured Content Management System (CMS) admin portal.
 
 ---
@@ -29,8 +29,8 @@ graph TD
 
 ## Technology Choices & Rationale
 
-- **Laravel 13 & PHP 8.3/8.5**: Industry-standard robust backend framework providing elegant ORM, robust policy authorization, seamless request validation, and comprehensive testing capabilities.
-- **Next.js 16 (App Router)**: Cutting-edge React framework enabling Server-Side Rendering (SSR), server actions, high-performance static optimization, and secure cookie-based session token handling.
+- **Laravel & PHP 8.3/8.5**: Industry-standard robust backend framework providing elegant ORM, robust policy authorization, seamless request validation, and comprehensive testing capabilities.
+- **Next.js (App Router)**: Cutting-edge React framework enabling Server-Side Rendering (SSR), server actions, high-performance static optimization, and secure cookie-based session token handling.
 - **MySQL 8.4 & phpMyAdmin**: Production-ready relational database with strict constraints, indexing, and visual database management.
 - **Tailwind CSS & Vanilla CSS**: High-performance utility-first styling combined with custom design tokens for rich aesthetics and responsive layouts.
 - **Docker Compose**: Containerized multi-service architecture ensuring identical behavior across development and production environments.
@@ -59,6 +59,23 @@ On the first run, containers will build and initialize automatically (allow 1–
 
 ---
 
+## Database Design (ERD)
+
+The database schema is engineered for performance, strict referential integrity, and multi-tenant brand scoping. Below is the Entity Relationship Diagram (ERD), defined editable in [docs/erd.dbml](docs/erd.dbml):
+
+![Entity Relationship Diagram](docs/erd.png.png)
+*Figure: Meridian Moto Group Entity Relationship Diagram.*
+
+### Key Tables & Relationships
+1. **Users & Roles (`users`, Spatie `roles`, `model_has_roles`)**: Central user entity supporting `admin` and `data_entry` roles.
+2. **Brands (`brands`)**: Represents manufacturer marques (Volt, Nomad, Apex, Sovereign) with unique slugs, brand accent colors, and publication status indexes.
+3. **Brand-User Scoping (`brand_user`)**: Pivot table establishing many-to-many relationship linking Data Entry users to their authorized brands, enforcing strict scoping across backend policies.
+4. **Motorcycles (`motorcycles`)**: Belongs to a brand (`brand_id`), storing pricing, engine displacement (`engine_cc`), power rating (`power_hp`), and publication/feature status with composite indexes (`is_published`, `brand_id`).
+5. **Promotions (`promotions`)**: Time-bound marketing campaigns tied to specific brands, tracking creator (`created_by`) and validity periods (`starts_at`, `ends_at`).
+6. **Locations & Test Rides (`locations`, `test_ride_requests`)**: Dealership hubs and public test ride booking submissions linked optional to motorcycle models.
+
+---
+
 ## Test Credentials & Authorization Matrix
 
 The application seeds initial users across distinct roles upon startup. See [Authorization Matrix](docs/authorization-matrix.md) for detailed permission rules.
@@ -77,7 +94,7 @@ The authenticated CMS portal provides administrative control over:
 1. **Catalog & Models**: Manage motorcycle specifications, pricing, engine metrics, imagery, and publication status.
 2. **Brands**: Configure brand marques, accents, taglines, and brand descriptions.
 3. **Promotions & Campaigns**: Create and schedule promotional campaigns and seasonal offers per brand.
-4. **Users Management**: Manage admin and data-entry accounts and brand assignments.
+4. **Users Management**: Manage admin and data-entry accounts and brand assignments with self-protection guard rails.
 
 ---
 
@@ -93,6 +110,18 @@ Interactive API documentation is hosted via Swagger UI at `http://localhost:8000
 
 ![API documentation](docs/screenshots/swagger-ui.png)
 *Figure: Swagger UI interactive API documentation interface.*
+
+---
+
+## Screenshots Gallery
+
+### Public Showroom (Desktop)
+![Home Desktop](docs/screenshots/home-desktop.png)
+*Figure: Immersive public showroom desktop view.*
+
+### Public Showroom (Mobile)
+![Home Mobile](docs/screenshots/home-mobile.png)
+*Figure: Responsive public showroom mobile view.*
 
 ---
 
