@@ -4,16 +4,6 @@
     <meta charset="UTF-8">
     <title>Meridian Moto Group API Documentation</title>
     <link rel="stylesheet" href="{{ asset('vendor/swagger-ui/swagger-ui.css') }}" />
-    <style>
-        body {
-            margin: 0;
-            background: #1a1a1a;
-            color: #f3f4f6;
-        }
-        .swagger-ui .topbar {
-            background-color: #111827;
-        }
-    </style>
 </head>
 <body>
     <div id="swagger-ui">Loading API documentation...</div>

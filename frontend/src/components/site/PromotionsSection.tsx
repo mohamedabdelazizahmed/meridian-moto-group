@@ -1,9 +1,10 @@
-import type { Promotion } from "@/types/api";
+import type { Schemas } from "@/types/api";
 import { Result } from "@/lib/result";
 import { SectionError } from "./SectionError";
+import { formatDate } from "@/lib/date";
 
 interface PromotionsSectionProps {
-  promotionsResult: Result<Promotion[]>;
+  promotionsResult: Result<Schemas["SitePromotion"][]>;
 }
 
 export function PromotionsSection({ promotionsResult }: PromotionsSectionProps) {
@@ -18,7 +19,7 @@ export function PromotionsSection({ promotionsResult }: PromotionsSectionProps) 
   }
 
   const promotions = promotionsResult.data;
-  if (promotions.length === 0) {
+  if (!promotions || promotions.length === 0) {
     return null;
   }
 
@@ -33,20 +34,40 @@ export function PromotionsSection({ promotionsResult }: PromotionsSectionProps) 
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {promotions.map((promo) => (
-            <div key={promo.id} className="bg-moto-surface border border-moto-border p-6 rounded-lg space-y-4">
-              <span className="text-xs font-mono bg-moto-copper/20 text-moto-copper px-2.5 py-1 rounded border border-moto-copper/30 uppercase">
-                {promo.code}
-              </span>
-              <h3 className="text-xl font-bold font-barlow tracking-wider text-moto-text uppercase">{promo.title}</h3>
-              <p className="text-sm text-moto-muted">{promo.description}</p>
-              {promo.discount_percentage && (
-                <div className="text-xs font-mono text-moto-copper font-bold">
-                  {promo.discount_percentage}% OFF
+          {promotions.map((promo) => {
+            const key = `${promo.title ?? "promo"}-${promo.starts_at ?? ""}-${promo.brand?.slug ?? "global"}`;
+            const brandAccent = promo.brand?.accent_color;
+            return (
+              <div key={key} className="bg-moto-surface border border-moto-border p-6 rounded-lg space-y-4 flex flex-col justify-between">
+                <div className="space-y-4">
+                  {promo.brand && (
+                    <span
+                      className="inline-block text-xs font-mono px-2.5 py-1 rounded border uppercase"
+                      style={{
+                        borderColor: brandAccent ? `${brandAccent}50` : undefined,
+                        backgroundColor: brandAccent ? `${brandAccent}15` : undefined,
+                        color: brandAccent || undefined,
+                      }}
+                    >
+                      {promo.brand.name}
+                    </span>
+                  )}
+                  {promo.image_url && (
+                    <div className="relative h-48 w-full rounded overflow-hidden bg-moto-bg">
+                      <img src={promo.image_url} alt={promo.title ?? "Promotion"} className="object-cover w-full h-full" />
+                    </div>
+                  )}
+                  <h3 className="text-xl font-bold font-barlow tracking-wider text-moto-text uppercase">{promo.title}</h3>
+                  <p className="text-sm text-moto-muted">{promo.description}</p>
                 </div>
-              )}
-            </div>
-          ))}
+                {promo.ends_at && (
+                  <div className="text-xs font-mono text-moto-copper pt-2 border-t border-moto-border/40">
+                    Valid until {formatDate(promo.ends_at)}
+                  </div>
+                )}
+              </div>
+            );
+          })}
         </div>
       </div>
     </section>

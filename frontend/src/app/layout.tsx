@@ -27,8 +27,9 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={`${inter.variable} ${barlowCondensed.variable}`}>
-      <body className="bg-moto-bg text-moto-text min-h-screen flex flex-col antialiased selection:bg-moto-copper selection:text-white">
+    /* Browser extensions modify attributes before hydration */
+    <html lang="en" className={`${inter.variable} ${barlowCondensed.variable}`} suppressHydrationWarning>
+      <body className="bg-moto-bg text-moto-text min-h-screen flex flex-col antialiased selection:bg-moto-copper selection:text-white" suppressHydrationWarning>
         <a
           href="#main-content"
           className="sr-only focus:not-sr-only focus:absolute focus:z-50 focus:p-4 focus:bg-moto-copper focus:text-moto-bg font-barlow font-bold uppercase tracking-wider"

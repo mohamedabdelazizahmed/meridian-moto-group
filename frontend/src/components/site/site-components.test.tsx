@@ -42,6 +42,28 @@ describe("Site Section Components", () => {
     expect(container).toBeEmptyDOMElement();
   });
 
+  it("renders sample promotions successfully without warnings and without undefined text", () => {
+    const samplePromos = [
+      {
+        title: "Autumn Track Days",
+        description: "Free track day session with any Apex motorcycle purchase.",
+        image_url: "http://localhost:8000/storage/promotions/autumn.webp",
+        starts_at: "2026-10-01T00:00:00.000000Z",
+        ends_at: "2026-12-31T23:59:59.000000Z",
+        brand: {
+          name: "Apex",
+          slug: "apex",
+          accent_color: "#E24A1D",
+        },
+      },
+    ];
+    render(<PromotionsSection promotionsResult={ok(samplePromos)} />);
+    expect(screen.getByText(/Autumn Track Days/i)).toBeInTheDocument();
+    expect(screen.getByText(/Free track day session/i)).toBeInTheDocument();
+    expect(screen.getByText("Apex")).toBeInTheDocument();
+    expect(screen.queryByText(/undefined/i)).not.toBeInTheDocument();
+  });
+
   it("renders FeaturedMachines error state when motorcyclesResult is not ok", () => {
     render(<FeaturedMachines brandsResult={ok([])} motorcyclesResult={err("Failed")} />);
     expect(screen.getByRole("alert")).toHaveTextContent(/Unable to load motorcycle catalog/i);

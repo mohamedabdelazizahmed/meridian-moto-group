@@ -1,9 +1,9 @@
 export const STITCH_IMAGES = {
-  heroAttack: "/images/motorcycles/volt-pulse-rs.svg",
-  apexProfile: "/images/motorcycles/apex-rs-900.svg",
-  tftCockpit: "/images/motorcycles/nomad-horizon-1250.svg",
-  suspension: "/images/motorcycles/sovereign-wraith-1800.svg",
-  exhaust: "/images/motorcycles/apex-track-600.svg",
+  heroAttack: "/images/motorcycles/hero-attack.jpg",
+  apexProfile: "/images/motorcycles/apex-rs-900.jpg",
+  tftCockpit: "/images/motorcycles/tft-cockpit.jpg",
+  suspension: "/images/motorcycles/suspension.jpg",
+  exhaust: "/images/motorcycles/exhaust.jpg",
 } as const;
 
 export const HERO_STATS = [

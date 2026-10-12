@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { EmptyState } from "@/components/site/EmptyState";
 import { Skeleton } from "@/components/ui/skeleton";
+import { formatDate } from "@/lib/date";
 
 interface UsersTableProps {
   users: User[];
@@ -89,7 +90,7 @@ export function UsersTable({ users, isLoading, currentUserId, onEdit, onDelete }
                   )}
                 </td>
                 <td className="p-3.5 font-mono text-[11px] text-moto-muted">
-                  {user.created_at ? new Date(user.created_at).toLocaleDateString() : "—"}
+                  {user.created_at ? formatDate(user.created_at) : "—"}
                 </td>
                 <td className="p-3.5 text-right space-x-2">
                   <Button variant="outline" size="sm" onClick={() => onEdit(user)}>

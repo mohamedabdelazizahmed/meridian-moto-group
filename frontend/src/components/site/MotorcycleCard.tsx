@@ -77,7 +77,7 @@ export function MotorcycleCard({ moto }: { moto: Motorcycle }) {
 
         <div className="my-4 aspect-[16/10] bg-moto-bg rounded overflow-hidden relative border border-moto-border">
           <img
-            src={accent.image}
+            src={moto.image_url || accent.image}
             alt={moto.name}
             className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
           />
