@@ -7,7 +7,6 @@ name: meridian-moto-group
 services:
   mysql:
     image: mysql:8.4
-    container_name: meridian-mysql
     restart: unless-stopped
     environment:
       MYSQL_DATABASE: meridian
@@ -30,7 +29,6 @@ services:
     build:
       context: ./backend
       dockerfile: Dockerfile
-    container_name: meridian-backend
     restart: unless-stopped
     depends_on:
       mysql:
@@ -39,15 +37,15 @@ services:
       APP_NAME: "Meridian Moto Group"
       APP_ENV: production
       APP_DEBUG: false
-      APP_URL: http://localhost:8000
-      FRONTEND_URL: http://localhost:3000
+      APP_URL: http://localhost:${APP_PORT:-8000}
+      FRONTEND_URL: http://localhost:${WEB_PORT:-3000}
       DB_CONNECTION: mysql
       DB_HOST: mysql
       DB_PORT: 3306
       DB_DATABASE: meridian
       DB_USERNAME: ${DB_USERNAME:-meridian}
       DB_PASSWORD: ${DB_PASSWORD:-secret}
-      SEED_USER_PASSWORD: ${SEED_USER_PASSWORD:-Meridian @2026}
+      SEED_USER_PASSWORD: "${SEED_USER_PASSWORD:-Meridian @2026}"
       SEED_ON_START: "true"
     ports:
       - "${APP_PORT:-8000}:8000"
@@ -59,9 +57,8 @@ services:
       context: ./frontend
       dockerfile: Dockerfile
       args:
-        NEXT_PUBLIC_API_URL: http://localhost:8000/api/v1
-        SITE_URL: http://localhost:3000
-    container_name: meridian-frontend
+        NEXT_PUBLIC_API_URL: http://localhost:${APP_PORT:-8000}/api/v1
+        SITE_URL: http://localhost:${WEB_PORT:-3000}
     restart: unless-stopped
     depends_on:
       backend:
@@ -69,14 +66,13 @@ services:
     environment:
       NODE_ENV: production
       API_INTERNAL_URL: http://backend:8000/api/v1
-      NEXT_PUBLIC_API_URL: http://localhost:8000/api/v1
-      SITE_URL: http://localhost:3000
+      NEXT_PUBLIC_API_URL: http://localhost:${APP_PORT:-8000}/api/v1
+      SITE_URL: http://localhost:${WEB_PORT:-3000}
     ports:
       - "${WEB_PORT:-3000}:3000"
 
   phpmyadmin:
     image: phpmyadmin:5
-    container_name: meridian-phpmyadmin
     restart: unless-stopped
     depends_on:
       mysql:

@@ -1,4 +1,4 @@
-FROM php:8.3-cli
+FROM php:8.4-cli
 
 COPY --from=mlocati/php-extension-installer:latest /usr/bin/install-php-extensions /usr/local/bin/
 
@@ -20,9 +20,11 @@ WORKDIR /var/www/html
 
 COPY composer.json composer.lock ./
 
-RUN composer install --no-interaction --prefer-dist --optimize-autoloader
+RUN composer install --no-interaction --prefer-dist --optimize-autoloader --no-scripts
 
 COPY . .
+
+RUN composer dump-autoload --optimize
 
 RUN mkdir -p storage/framework/sessions storage/framework/views storage/framework/cache \
     && chmod -R 775 storage bootstrap/cache

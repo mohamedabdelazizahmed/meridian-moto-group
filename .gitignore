@@ -8,4 +8,4 @@ vendor
 backend/storage/*.key
 frontend/.next
 *.log
-finish-task.txt
+/rescue-task.txt
