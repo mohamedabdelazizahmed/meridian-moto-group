@@ -8,4 +8,15 @@ vendor
 backend/storage/*.key
 frontend/.next
 *.log
-/rescue-task.txt
+rescue-task.txt
+finish-task.txt
+final-task.txt
+readme-task.txt
+task-*.txt
+fix-*.txt
+*_PLAN.md
+HANDOFF*.md
+AGENTS.md
+CLAUDE.md
+*.prompt
+*.prompt.md
