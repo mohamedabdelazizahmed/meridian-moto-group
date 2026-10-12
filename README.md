@@ -21,7 +21,7 @@ graph TD
     Client[Next.js Client / Browser] -->|HTTP / HTTPS| Frontend[Next.js App Router Server]
     Frontend -->|Internal API Route Handlers / Cookies| Backend[Laravel REST API /api/v1]
     Backend -->|Eloquent ORM & Policies| MySQL[(MySQL 8.4 Database)]
-    Backend -->|Swagger UI / OpenAPI Spec| Docs[/docs & /docs/openapi.yaml]
+    Backend -->|Swagger UI / OpenAPI Spec| Docs["Swagger Docs & OpenAPI Spec"]
     PhpMyAdmin[phpMyAdmin] -->|DB Management| MySQL
 ```
 
