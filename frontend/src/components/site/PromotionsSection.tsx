@@ -2,6 +2,7 @@ import type { Schemas } from "@/types/api";
 import { Result } from "@/lib/result";
 import { SectionError } from "./SectionError";
 import { formatDate } from "@/lib/date";
+import Image from "next/image";
 
 interface PromotionsSectionProps {
   promotionsResult: Result<Schemas["SitePromotion"][]>;
@@ -54,7 +55,7 @@ export function PromotionsSection({ promotionsResult }: PromotionsSectionProps) 
                   )}
                   {promo.image_url && (
                     <div className="relative h-48 w-full rounded overflow-hidden bg-moto-bg">
-                      <img src={promo.image_url} alt={promo.title ?? "Promotion"} className="object-cover w-full h-full" />
+                      <Image src={promo.image_url} alt={promo.title ?? "Promotion"} fill className="object-cover" unoptimized />
                     </div>
                   )}
                   <h3 className="text-xl font-bold font-barlow tracking-wider text-moto-text uppercase">{promo.title}</h3>

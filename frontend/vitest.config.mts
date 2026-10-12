@@ -10,8 +10,11 @@ export default defineConfig({
     setupFiles: './src/test/setup.ts',
   },
   resolve: {
-    alias: {
-      '@': path.resolve(__dirname, './src'),
-    },
+    alias: [
+      {
+        find: /^@\/(.*)$/,
+        replacement: path.resolve(__dirname, './src/$1'),
+      },
+    ],
   },
 });

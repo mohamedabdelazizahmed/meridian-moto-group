@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useForm, UseFormSetError } from "react-hook-form";
+import { useForm, useWatch, UseFormSetError } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { userSchema, UserFormData } from "../schema";
 import { Button } from "@/components/ui/button";
@@ -39,7 +39,7 @@ export function UserForm({
   const {
     register,
     handleSubmit,
-    watch,
+    control,
     setValue,
     setError,
     formState: { errors },
@@ -63,8 +63,8 @@ export function UserForm({
     }
   }, [setError, setErrorRef]);
 
-  const selectedRole = watch("role");
-  const selectedBrandIds = watch("brand_ids") || [];
+  const selectedRole = useWatch({ control, name: "role" });
+  const selectedBrandIds = useWatch({ control, name: "brand_ids" }) || [];
 
   const handleBrandToggle = (brandId: number) => {
     const exists = selectedBrandIds.includes(brandId);
